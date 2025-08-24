@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b2c0ecc33ac88594cb7a129c9b1c415a, type: 3}
+  m_Name: Fungus
+  m_EditorClassIdentifier: 
+  cardName: Fungus
+  cardImage: {fileID: 0}
+  description: "\u4E3B\u8981\u98DF\u7269\u6765\u6E90\uFF0C\u53EF\u5582\u517B\u5E7C\u866B"
+  cardType: 1
+  isConsumable: 1
+  isStackable: 1
+  stackLimit: 20
+  leafCost: 0
+  fungusCost: 0
+  fertilizer: 0
+  health: 0
+  attack: 0
+  resourceType: 3
+  resourceValue: 2
+  decayRate: 0

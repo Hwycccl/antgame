@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b2c0ecc33ac88594cb7a129c9b1c415a, type: 3}
+  m_Name: LeafFragment
+  m_EditorClassIdentifier: 
+  cardName: LeafFragment
+  cardImage: {fileID: 0}
+  description: "\u5DE5\u8681\u5207\u788E\u7684\u53F6\u7247\uFF0C\u53EF\u4F5C\u4E3A\u98DF\u7269\u6216\u517B\u83CC\u57FA\u8D28"
+  cardType: 1
+  isConsumable: 1
+  isStackable: 1
+  stackLimit: 20
+  leafCost: 0
+  fungusCost: 0
+  fertilizer: 0
+  health: 0
+  attack: 0
+  resourceType: 1
+  resourceValue: 1
+  decayRate: 0

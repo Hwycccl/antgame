@@ -9,7 +9,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private List<CardsBasicData> startingDeck = new List<CardsBasicData>();
 
     [Header("起始手牌数量")]
-    [SerializeField] private int startingHandSize = 5;
+    [SerializeField] private int startingHandSize = 1;
 
     private void Awake()
     {

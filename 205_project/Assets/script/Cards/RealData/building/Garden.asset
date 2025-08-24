@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 58b0260f47fc75540845a887a5ca8aab, type: 3}
+  m_Name: Garden
+  m_EditorClassIdentifier: 
+  cardName: Garden
+  cardImage: {fileID: 0}
+  description: "\u57F9\u517B\u771F\u83CC\u7684\u5730\u65B9"
+  cardType: 2
+  isConsumable: 0
+  isStackable: 1
+  stackLimit: 6
+  leafCost: 5
+  fungusCost: 0
+  fertilizer: 2
+  health: 0
+  attack: 0
+  buildingType: 3
+  maxHp: 30
+  productionPerTurn: 3
+  capacity: 5

@@ -771,7 +771,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29cb36fe926da164b9598fc7ade3a49b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerDeck: []
+  playerDeck:
+  - {fileID: 11400000, guid: fa02c6718b6b8b049849945c368d0ccc, type: 2}
+  - {fileID: 11400000, guid: 6196b6d49ff006249a78e85001e1ec76, type: 2}
   playerHand: []
   playerDiscardPile: []
   leafResources: 10
@@ -804,7 +806,7 @@ GameObject:
   - component: {fileID: 1555514099}
   - component: {fileID: 1555514098}
   m_Layer: 0
-  m_Name: HandArea
+  m_Name: handArea
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -932,6 +934,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   allCards:
   - {fileID: 11400000, guid: fa02c6718b6b8b049849945c368d0ccc, type: 2}
+  - {fileID: 11400000, guid: 6196b6d49ff006249a78e85001e1ec76, type: 2}
 --- !u!4 &1954585865
 Transform:
   m_ObjectHideFlags: 0

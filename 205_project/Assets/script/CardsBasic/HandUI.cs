@@ -36,7 +36,7 @@ public class HandUI : MonoBehaviour
 
     private void Start()
     {
-        DrawInitialHand(1); // 初始发 5 张牌
+        DrawInitialHand(1); // 初始发 1张牌
     }
 
     /// <summary>
