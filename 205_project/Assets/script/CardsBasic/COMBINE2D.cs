@@ -1,17 +1,19 @@
-// COMBINE2D.cs
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+
 
 public class COMBINE2D : MonoBehaviour
 {
-    [Header("组合配方")]
-    [SerializeField] private CardCombinationsData combinationData;
+    [Header("组合配方数据库")]
+    [SerializeField] private CardsCombination combinationData;
 
     private Coroutine combinationCoroutine;
     private float remainingTime = 0f;
     private bool isPaused = false;
     private COMBINE2D combinationPartner;
-    private CardCombination currentCombination;
+    private CardsCombinationRule currentCombination;
 
     private HoverDrag2D hoverDragScript;
 
@@ -31,8 +33,9 @@ public class COMBINE2D : MonoBehaviour
         {
             var card1Data = thisCardBeh.GetCardData();
             var card2Data = targetCardBeh.GetCardData();
+            var inputCards = new List<CardsBasicData> { card1Data, card2Data };
+            var combination = combinationData.GetCombination(inputCards);
 
-            var combination = combinationData.GetCombination(card1Data, card2Data);
             if (combination != null)
             {
                 SetupCombination(combination, targetCombine);
@@ -40,7 +43,6 @@ public class COMBINE2D : MonoBehaviour
 
                 if (isInitiator)
                 {
-                    // 双方都保存对协程的引用，以便都能取消它
                     var timerCoroutine = StartCoroutine(CombinationTimer());
                     combinationCoroutine = timerCoroutine;
                     targetCombine.combinationCoroutine = timerCoroutine;
@@ -51,7 +53,7 @@ public class COMBINE2D : MonoBehaviour
         return false;
     }
 
-    private void SetupCombination(CardCombination combination, COMBINE2D partner)
+    private void SetupCombination(CardsCombinationRule combination, COMBINE2D partner)
     {
         currentCombination = combination;
         combinationPartner = partner;
@@ -81,54 +83,57 @@ public class COMBINE2D : MonoBehaviour
 
         HandUI.Instance.StartCoroutine(GenerateCardAfterDelay(currentCombination));
 
-        var cardData1 = GetComponent<CardsBehaviour>().GetCardData();
-        var cardData2 = combinationPartner.GetComponent<CardsBehaviour>().GetCardData();
-        var rule1 = currentCombination.requiredCards[0];
-        var rule2 = currentCombination.requiredCards[1];
-        bool card1MatchesRule1 = (cardData1 == rule1.cardData && cardData2 == rule2.cardData);
+        var inputCards = new List<CardsBasicData> {
+            GetComponent<CardsBehaviour>().GetCardData(),
+            combinationPartner.GetComponent<CardsBehaviour>().GetCardData()
+        };
 
         bool selfSurvived = true;
         bool partnerSurvived = true;
-        var partnerObject = combinationPartner.gameObject; // 提前获取引用
+        var partnerObject = combinationPartner.gameObject;
 
-        if (card1MatchesRule1)
+        foreach (var req in currentCombination.requiredCards)
         {
-            if (rule1.destroyOnCombine) selfSurvived = false;
-            if (rule2.destroyOnCombine) partnerSurvived = false;
-        }
-        else
-        {
-            if (rule2.destroyOnCombine) selfSurvived = false;
-            if (rule1.destroyOnCombine) partnerSurvived = false;
+            if (req.specificCard != null)
+            {
+                if (inputCards.Contains(req.specificCard) && req.destroyOnCombine)
+                {
+                    if (GetComponent<CardsBehaviour>().GetCardData() == req.specificCard) selfSurvived = false;
+                    if (combinationPartner.GetComponent<CardsBehaviour>().GetCardData() == req.specificCard) partnerSurvived = false;
+                }
+            }
+            else
+            {
+                if (inputCards.Any(c => c.cardType == req.cardType) && req.destroyOnCombine)
+                {
+                    if (GetComponent<CardsBehaviour>().GetCardData().cardType == req.cardType) selfSurvived = false;
+                    if (combinationPartner.GetComponent<CardsBehaviour>().GetCardData().cardType == req.cardType) partnerSurvived = false;
+                }
+            }
         }
 
         if (!selfSurvived) Destroy(gameObject);
         if (!partnerSurvived) Destroy(partnerObject);
 
-        // **核心修正**: 在流程的最后，通知所有幸存者重置状态
-        if (selfSurvived)
-        {
-            ResetCombinationState(false); // 重置自己
-        }
-        if (partnerSurvived)
-        {
-            // 使用我们提前保存的引用
-            if (partnerObject != null)
-            {
-                partnerObject.GetComponent<COMBINE2D>().ResetCombinationState(false); // 重置伙伴
-            }
-        }
+        if (selfSurvived) ResetCombinationState(false);
+        if (partnerSurvived && partnerObject != null)
+            partnerObject.GetComponent<COMBINE2D>().ResetCombinationState(false);
     }
 
-    private IEnumerator GenerateCardAfterDelay(CardCombination combination)
+    private IEnumerator GenerateCardAfterDelay(CardsCombinationRule combination)
     {
         yield return null;
 
-        if (combination.resultingCards.Count > 0)
+        if (combination.results.Count > 0)
         {
-            int randomIndex = Random.Range(0, combination.resultingCards.Count);
-            CardsBasicData resultingCardData = combination.resultingCards[randomIndex];
-            HandUI.Instance.AddCardToHand(resultingCardData);
+            foreach (var result in combination.results)
+            {
+                if (Random.value <= result.probability)
+                {
+                    for (int i = 0; i < result.quantity; i++)
+                        HandUI.Instance.AddCardToHand(result.resultCard);
+                }
+            }
         }
     }
 
@@ -137,7 +142,7 @@ public class COMBINE2D : MonoBehaviour
         if (combinationPartner != null)
         {
             isPaused = true;
-            if (combinationPartner != null) combinationPartner.isPaused = true;
+            combinationPartner.isPaused = true;
             Debug.Log("计时暂停。");
         }
     }
@@ -147,7 +152,7 @@ public class COMBINE2D : MonoBehaviour
         if (combinationPartner != null && isPaused)
         {
             isPaused = false;
-            if (combinationPartner != null) combinationPartner.isPaused = false;
+            combinationPartner.isPaused = false;
             Debug.Log("计时恢复。");
         }
     }
@@ -155,9 +160,8 @@ public class COMBINE2D : MonoBehaviour
     public void CancelCombination()
     {
         if (combinationPartner != null)
-        {
             combinationPartner.ResetCombinationState(false);
-        }
+
         ResetCombinationState(true);
         Debug.Log("组合已取消。");
     }
@@ -167,9 +171,7 @@ public class COMBINE2D : MonoBehaviour
         if (combinationCoroutine != null) StopCoroutine(combinationCoroutine);
 
         if (notifyPartner && combinationPartner != null && combinationPartner.combinationPartner == this)
-        {
             combinationPartner.ResetCombinationState(false);
-        }
 
         combinationCoroutine = null;
         remainingTime = 0f;
@@ -181,13 +183,7 @@ public class COMBINE2D : MonoBehaviour
         if (hoverDragScript) hoverDragScript.ResetSortingOrder();
     }
 
-    public bool IsInCombination()
-    {
-        return combinationPartner != null;
-    }
+    public bool IsInCombination() => combinationPartner != null;
 
-    public COMBINE2D GetPartner()
-    {
-        return combinationPartner;
-    }
+    public COMBINE2D GetPartner() => combinationPartner;
 }
