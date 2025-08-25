@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 5234694144868103954}
   - component: {fileID: 1158430524464079741}
   - component: {fileID: 4725683902157859327}
+  - component: {fileID: -9033638856671594403}
   m_Layer: 0
   m_Name: antCardPrefab
   m_TagString: card
@@ -133,3 +134,18 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!114 &-9033638856671594403
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6163798917947004342}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00a6809b6ac51ee4c96c67a49f9cd576, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cardData: {fileID: 0}
+  cardSpriteRenderer: {fileID: 0}
+  isInHand: 1
