@@ -13,18 +13,18 @@ MonoBehaviour:
   m_Name: CardsCombination
   m_EditorClassIdentifier: 
   combinations:
-  - combinationName: 111
+  - combinationName: "\u58EB\u5175\u8681+\u58EB\u5175\u8681\uFF1A\u8681\u540E"
     requiredCards:
-    - specificCard: {fileID: 11400000, guid: 0c8db7cc11c1bc24a8c85249a89cd5a5, type: 2}
-      cardType: 1
+    - specificCard: {fileID: 11400000, guid: 2ce5aa9fe54f24b47b56fb2be243a9bc, type: 2}
+      cardType: 0
       requiredCount: 1
       destroyOnCombine: 1
-    - specificCard: {fileID: 11400000, guid: 0c8db7cc11c1bc24a8c85249a89cd5a5, type: 2}
-      cardType: 1
+    - specificCard: {fileID: 11400000, guid: 2ce5aa9fe54f24b47b56fb2be243a9bc, type: 2}
+      cardType: 0
       requiredCount: 1
       destroyOnCombine: 1
     results:
-    - resultCard: {fileID: 11400000, guid: 2e7c409ccf3a9494f88af2ba30a834c1, type: 2}
+    - resultCard: {fileID: 11400000, guid: 58158bc3dfe812a49babdd1eb0cf73b7, type: 2}
       quantity: 1
       probability: 1
-    time: 1
+    time: 3
