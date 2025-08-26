@@ -2,7 +2,6 @@
 using UnityEngine;
 
 [RequireComponent(typeof(Collider2D))]
-[RequireComponent(typeof(SpriteRenderer))]
 public class HoverDrag2D : MonoBehaviour
 {
     [Header("视觉效果")]
@@ -13,6 +12,7 @@ public class HoverDrag2D : MonoBehaviour
 
     [Header("渲染层级")]
     public int sortingOrderOnDrag = 100;
+    public SpriteRenderer artworkRenderer; // 指向 Artwork
 
     private Vector3 originalScale;
     private bool isDragging = false;
@@ -22,14 +22,18 @@ public class HoverDrag2D : MonoBehaviour
     private float hoverCooldownTimer = 0f;
 
     private STACK2D stackScript;
-    private SpriteRenderer spriteRenderer;
+    private SpriteRenderer backgroundRenderer;
     private int originalSortingOrder;
 
     void Start()
     {
         originalScale = transform.localScale;
         stackScript = GetComponent<STACK2D>();
-        spriteRenderer = GetComponent<SpriteRenderer>();
+        backgroundRenderer = GetComponent<SpriteRenderer>();
+        if (artworkRenderer != null)
+            originalSortingOrder = artworkRenderer.sortingOrder;
+        else if (backgroundRenderer != null)
+            originalSortingOrder = backgroundRenderer.sortingOrder;
     }
 
     void Update()
@@ -49,7 +53,6 @@ public class HoverDrag2D : MonoBehaviour
 
         transform.localScale = Vector3.Lerp(transform.localScale, desiredScale, Time.deltaTime * lerpSpeed);
 
-        // **核心修正**: 只有此脚本负责在拖拽时移动对象
         if (isDragging)
         {
             Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -67,11 +70,10 @@ public class HoverDrag2D : MonoBehaviour
         mouseWorldPos.z = transform.position.z;
         dragOffset = transform.position - mouseWorldPos;
 
-        if (spriteRenderer != null)
-        {
-            originalSortingOrder = spriteRenderer.sortingOrder;
-            spriteRenderer.sortingOrder = sortingOrderOnDrag;
-        }
+        if (artworkRenderer != null)
+            artworkRenderer.sortingOrder = sortingOrderOnDrag;
+        else if (backgroundRenderer != null)
+            backgroundRenderer.sortingOrder = sortingOrderOnDrag;
 
         if (stackScript != null) stackScript.StartDrag();
     }
@@ -84,7 +86,7 @@ public class HoverDrag2D : MonoBehaviour
         hoverCooldownTimer = hoverCooldownTime;
 
         if (stackScript != null) stackScript.EndDrag();
-        else if (spriteRenderer != null) spriteRenderer.sortingOrder = originalSortingOrder;
+        else ResetSortingOrder();
     }
 
     private void CheckHover()
@@ -100,13 +102,14 @@ public class HoverDrag2D : MonoBehaviour
         isDragging = false;
         isHovering = false;
         transform.localScale = originalScale;
+        ResetSortingOrder();
     }
 
     public void ResetSortingOrder()
     {
-        if (spriteRenderer != null)
-        {
-            spriteRenderer.sortingOrder = originalSortingOrder;
-        }
+        if (artworkRenderer != null)
+            artworkRenderer.sortingOrder = originalSortingOrder;
+        else if (backgroundRenderer != null)
+            backgroundRenderer.sortingOrder = originalSortingOrder;
     }
 }
