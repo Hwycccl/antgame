@@ -21,15 +21,16 @@ public class STACK2D : MonoBehaviour
 
     private bool isDragging = false;
     private GameObject nearestStackTarget = null;
-    private COMBINE2D combineScript;
     private HoverDrag2D hoverDragScript;
     private SpriteRenderer artworkRenderer;
+    private bool isStacked = false;
+
+    public bool IsStacked() => isStacked;
 
     void Start()
     {
         if (borderObject != null) borderObject.SetActive(false);
 
-        combineScript = GetComponent<COMBINE2D>();
         hoverDragScript = GetComponent<HoverDrag2D>();
         if (hoverDragScript != null)
             artworkRenderer = hoverDragScript.artworkRenderer;
@@ -39,20 +40,15 @@ public class STACK2D : MonoBehaviour
     {
         if (isDragging)
         {
-            if (combineScript != null && combineScript.IsInCombination())
-            {
-                var partner = combineScript.GetPartner();
-                if (partner != null && Vector2.Distance(transform.position, partner.transform.position) > detectRadius)
-                    combineScript.CancelCombination();
-            }
-            else
-            {
-                CheckNearbyObjects();
-            }
+            CheckNearbyObjects();
         }
     }
 
-    public void StartDrag() => isDragging = true;
+    public void StartDrag()
+    {
+        isDragging = true;
+        isStacked = false;
+    }
 
     public void EndDrag()
     {
@@ -63,11 +59,13 @@ public class STACK2D : MonoBehaviour
 
         if (nearestStackTarget != null)
         {
-            StartCoroutine(SnapAndAttemptCombine(nearestStackTarget));
+            StartCoroutine(SnapAndStack(nearestStackTarget));
         }
-        else if (hoverDragScript != null)
+        else
         {
-            hoverDragScript.ResetSortingOrder();
+            // 没有堆叠目标才重置排序
+            if (hoverDragScript != null)
+                hoverDragScript.ResetSortingOrder();
         }
 
         nearestStackTarget = null;
@@ -96,35 +94,17 @@ public class STACK2D : MonoBehaviour
             borderObject.SetActive(nearestStackTarget != null);
     }
 
-    private IEnumerator SnapAndAttemptCombine(GameObject target)
+    private IEnumerator SnapAndStack(GameObject target)
     {
-        var targetHover = target.GetComponent<HoverDrag2D>();
         if (hoverDragScript) hoverDragScript.enabled = false;
-        if (targetHover) targetHover.enabled = false;
 
-        yield return SnapToTarget(target);
-
-        var targetCombine = target.GetComponent<COMBINE2D>();
-        bool combinationStarted = false;
-
-        if (combineScript != null && targetCombine != null)
-            combinationStarted = combineScript.AttemptToStartCombination(targetCombine, true);
-
-        if (!combinationStarted)
-        {
-            if (hoverDragScript) hoverDragScript.enabled = true;
-            if (targetHover) targetHover.enabled = true;
-        }
-    }
-
-    private IEnumerator SnapToTarget(GameObject target)
-    {
-        if (hoverDragScript) hoverDragScript.ForceReset();
-        var targetArtwork = target.GetComponent<HoverDrag2D>()?.artworkRenderer;
-
+        // 排序到目标上方
+        var targetHover = target.GetComponent<HoverDrag2D>();
+        var targetArtwork = targetHover != null ? targetHover.artworkRenderer : null;
         if (artworkRenderer != null && targetArtwork != null)
             artworkRenderer.sortingOrder = targetArtwork.sortingOrder + 1;
 
+        // 吸附位置
         Vector3 targetPosition = target.transform.position + stackOffset;
 
         while (Vector3.Distance(transform.position, targetPosition) > 0.01f)
@@ -134,6 +114,9 @@ public class STACK2D : MonoBehaviour
         }
 
         transform.position = targetPosition;
+        isStacked = true;
+
+        // 释放拖拽状态
+        if (hoverDragScript) hoverDragScript.enabled = true;
     }
 }
-

@@ -120,4 +120,3 @@ public class HoverDrag2D : MonoBehaviour
             backgroundRenderer.sortingOrder = originalSortingOrder;
     }
 }
-
