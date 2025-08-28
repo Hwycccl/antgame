@@ -10,7 +10,7 @@ public class STACK2D : MonoBehaviour
     public LayerMask stackableLayer;
 
     [Header("堆叠与动画")]
-    public Vector3 stackOffset = new Vector3(0, -0.2f, 0);
+    public Vector3 stackOffset = new Vector3(0, -1f, 0);
     public float snapSpeed = 10f;
 
     [Header("标签验证")]
@@ -18,6 +18,8 @@ public class STACK2D : MonoBehaviour
 
     [Header("高亮提示")]
     public GameObject borderObject;
+
+    [HideInInspector] public STACK2D stackAbove; // 堆顶引用
 
     private bool isDragging = false;
     private GameObject nearestStackTarget = null;
@@ -32,8 +34,18 @@ public class STACK2D : MonoBehaviour
         if (borderObject != null) borderObject.SetActive(false);
 
         hoverDragScript = GetComponent<HoverDrag2D>();
+
         if (hoverDragScript != null)
+        {
             artworkRenderer = hoverDragScript.artworkRenderer;
+            if (artworkRenderer == null)
+            {
+                // 自动获取名为 "artwork" 的子物体 SpriteRenderer
+                Transform artTransform = transform.Find("artwork");
+                if (artTransform != null)
+                    artworkRenderer = artTransform.GetComponent<SpriteRenderer>();
+            }
+        }
     }
 
     void Update()
@@ -48,6 +60,7 @@ public class STACK2D : MonoBehaviour
     {
         isDragging = true;
         isStacked = false;
+        stackAbove = null;
     }
 
     public void EndDrag()
@@ -63,7 +76,6 @@ public class STACK2D : MonoBehaviour
         }
         else
         {
-            // 没有堆叠目标才重置排序
             if (hoverDragScript != null)
                 hoverDragScript.ResetSortingOrder();
         }
@@ -75,6 +87,7 @@ public class STACK2D : MonoBehaviour
     {
         nearestStackTarget = null;
         float minDist = float.MaxValue;
+
         Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, detectRadius, stackableLayer);
 
         foreach (var hit in hits)
@@ -82,11 +95,13 @@ public class STACK2D : MonoBehaviour
             if (hit.gameObject == this.gameObject) continue;
             if (!validTags.Any(tag => hit.gameObject.CompareTag(tag))) continue;
 
-            float dist = Vector2.Distance(transform.position, hit.transform.position);
+            GameObject topCard = GetTopCard(hit.gameObject);
+
+            float dist = Vector2.Distance(transform.position, topCard.transform.position);
             if (dist < minDist)
             {
                 minDist = dist;
-                nearestStackTarget = hit.gameObject;
+                nearestStackTarget = topCard;
             }
         }
 
@@ -94,17 +109,25 @@ public class STACK2D : MonoBehaviour
             borderObject.SetActive(nearestStackTarget != null);
     }
 
+    GameObject GetTopCard(GameObject card)
+    {
+        STACK2D stack = card.GetComponent<STACK2D>();
+        if (stack != null && stack.stackAbove != null)
+            return GetTopCard(stack.stackAbove.gameObject);
+        return card;
+    }
+
     private IEnumerator SnapAndStack(GameObject target)
     {
         if (hoverDragScript) hoverDragScript.enabled = false;
 
-        // 排序到目标上方
-        var targetHover = target.GetComponent<HoverDrag2D>();
-        var targetArtwork = targetHover != null ? targetHover.artworkRenderer : null;
-        if (artworkRenderer != null && targetArtwork != null)
-            artworkRenderer.sortingOrder = targetArtwork.sortingOrder + 1;
+        STACK2D targetStack = target.GetComponent<STACK2D>();
+        if (artworkRenderer != null && targetStack != null && targetStack.artworkRenderer != null)
+            artworkRenderer.sortingOrder = targetStack.artworkRenderer.sortingOrder + 1;
 
-        // 吸附位置
+        if (targetStack != null)
+            targetStack.stackAbove = this;
+
         Vector3 targetPosition = target.transform.position + stackOffset;
 
         while (Vector3.Distance(transform.position, targetPosition) > 0.01f)
@@ -116,7 +139,7 @@ public class STACK2D : MonoBehaviour
         transform.position = targetPosition;
         isStacked = true;
 
-        // 释放拖拽状态
         if (hoverDragScript) hoverDragScript.enabled = true;
     }
 }
+

@@ -7,12 +7,12 @@ public class HoverDrag2D : MonoBehaviour
     [Header("视觉效果")]
     public float hoverScaleFactor = 0.85f;
     public float pressScaleFactor = 0.7f;
-    public float lerpSpeed = 5f;
+    public float lerpSpeed = 15f;
     public float hoverCooldownTime = 1f;
 
     [Header("渲染层级")]
     public int sortingOrderOnDrag = 100;
-    public SpriteRenderer artworkRenderer; // 指向 Artwork
+    public SpriteRenderer artworkRenderer; // 可以留空，自动获取 "artwork"
 
     private Vector3 originalScale;
     private bool isDragging = false;
@@ -30,6 +30,15 @@ public class HoverDrag2D : MonoBehaviour
         originalScale = transform.localScale;
         stackScript = GetComponent<STACK2D>();
         backgroundRenderer = GetComponent<SpriteRenderer>();
+
+        // 自动获取名为 "artwork" 的子物体 SpriteRenderer
+        if (artworkRenderer == null)
+        {
+            Transform artTransform = transform.Find("artwork");
+            if (artTransform != null)
+                artworkRenderer = artTransform.GetComponent<SpriteRenderer>();
+        }
+
         if (artworkRenderer != null)
             originalSortingOrder = artworkRenderer.sortingOrder;
         else if (backgroundRenderer != null)
