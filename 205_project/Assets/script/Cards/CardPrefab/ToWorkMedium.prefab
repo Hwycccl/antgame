@@ -101,7 +101,7 @@ GameObject:
   - component: {fileID: 2414740563752937770}
   - component: {fileID: 3283929863490310576}
   m_Layer: 6
-  m_Name: WorkerMedium
+  m_Name: ToWorkMedium
   m_TagString: Unit
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -235,7 +235,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00a6809b6ac51ee4c96c67a49f9cd576, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cardData: {fileID: 11400000, guid: 4857d19b103223a4a88b0728743299f1, type: 2}
+  cardData: {fileID: 11400000, guid: ad19daf262e494b47ac8118b9cb31d20, type: 2}
   artworkRenderer: {fileID: 6301334984188482733}
   titleText: {fileID: 0}
   descriptionText: {fileID: 0}
