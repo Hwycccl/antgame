@@ -44,12 +44,16 @@ public class HoverDrag2D : MonoBehaviour
             if (hoverCooldownTimer <= 0f) hoverCooldown = false;
         }
 
-        if (!isDragging && !hoverCooldown) CheckHover();
-        else isHovering = false;
+        if (!isDragging && !hoverCooldown)
+            CheckHover();
+        else
+            isHovering = false;
 
         Vector3 desiredScale = originalScale;
-        if (isDragging) desiredScale = originalScale * pressScaleFactor;
-        else if (isHovering) desiredScale = originalScale * hoverScaleFactor;
+        if (isDragging)
+            desiredScale = originalScale * pressScaleFactor;
+        else if (isHovering)
+            desiredScale = originalScale * hoverScaleFactor;
 
         transform.localScale = Vector3.Lerp(transform.localScale, desiredScale, Time.deltaTime * lerpSpeed);
 
@@ -75,7 +79,8 @@ public class HoverDrag2D : MonoBehaviour
         else if (backgroundRenderer != null)
             backgroundRenderer.sortingOrder = sortingOrderOnDrag;
 
-        if (stackScript != null) stackScript.StartDrag();
+        if (stackScript != null)
+            stackScript.StartDrag();
     }
 
     void OnMouseUp()
@@ -85,8 +90,10 @@ public class HoverDrag2D : MonoBehaviour
         hoverCooldown = true;
         hoverCooldownTimer = hoverCooldownTime;
 
-        if (stackScript != null) stackScript.EndDrag();
-        else ResetSortingOrder();
+        if (stackScript != null)
+            stackScript.EndDrag();
+        else
+            ResetSortingOrder();
     }
 
     private void CheckHover()
@@ -113,3 +120,4 @@ public class HoverDrag2D : MonoBehaviour
             backgroundRenderer.sortingOrder = originalSortingOrder;
     }
 }
+

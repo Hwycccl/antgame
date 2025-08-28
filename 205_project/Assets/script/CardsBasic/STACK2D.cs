@@ -21,15 +21,13 @@ public class STACK2D : MonoBehaviour
 
     private bool isDragging = false;
     private GameObject nearestStackTarget = null;
-
     private COMBINE2D combineScript;
     private HoverDrag2D hoverDragScript;
     private SpriteRenderer artworkRenderer;
 
     void Start()
     {
-        if (borderObject != null)
-            borderObject.SetActive(false);
+        if (borderObject != null) borderObject.SetActive(false);
 
         combineScript = GetComponent<COMBINE2D>();
         hoverDragScript = GetComponent<HoverDrag2D>();
@@ -101,7 +99,6 @@ public class STACK2D : MonoBehaviour
     private IEnumerator SnapAndAttemptCombine(GameObject target)
     {
         var targetHover = target.GetComponent<HoverDrag2D>();
-
         if (hoverDragScript) hoverDragScript.enabled = false;
         if (targetHover) targetHover.enabled = false;
 
@@ -109,6 +106,7 @@ public class STACK2D : MonoBehaviour
 
         var targetCombine = target.GetComponent<COMBINE2D>();
         bool combinationStarted = false;
+
         if (combineScript != null && targetCombine != null)
             combinationStarted = combineScript.AttemptToStartCombination(targetCombine, true);
 
@@ -122,17 +120,20 @@ public class STACK2D : MonoBehaviour
     private IEnumerator SnapToTarget(GameObject target)
     {
         if (hoverDragScript) hoverDragScript.ForceReset();
-
         var targetArtwork = target.GetComponent<HoverDrag2D>()?.artworkRenderer;
+
         if (artworkRenderer != null && targetArtwork != null)
             artworkRenderer.sortingOrder = targetArtwork.sortingOrder + 1;
 
         Vector3 targetPosition = target.transform.position + stackOffset;
+
         while (Vector3.Distance(transform.position, targetPosition) > 0.01f)
         {
             transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * snapSpeed);
             yield return null;
         }
+
         transform.position = targetPosition;
     }
 }
+
