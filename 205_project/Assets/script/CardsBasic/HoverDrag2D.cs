@@ -4,22 +4,12 @@ using UnityEngine;
 [RequireComponent(typeof(Collider2D))]
 public class HoverDrag2D : MonoBehaviour
 {
-    [Header("视觉效果")]
-    public float hoverScaleFactor = 0.85f;
-    public float pressScaleFactor = 0.7f;
-    public float lerpSpeed = 15f;
-    public float hoverCooldownTime = 1f;
-
-    [Header("渲染层级")]
+    [Header("Render Settings")]
     public int sortingOrderOnDrag = 100;
-    public SpriteRenderer artworkRenderer; // 可以留空，自动获取 "artwork"
+    public SpriteRenderer artworkRenderer; // auto fetch if null
 
-    private Vector3 originalScale;
-    private bool isDragging = false;
     private Vector3 dragOffset;
-    private bool isHovering = false;
-    private bool hoverCooldown = false;
-    private float hoverCooldownTimer = 0f;
+    private bool isDragging = false;
 
     private STACK2D stackScript;
     private SpriteRenderer backgroundRenderer;
@@ -27,11 +17,9 @@ public class HoverDrag2D : MonoBehaviour
 
     void Start()
     {
-        originalScale = transform.localScale;
         stackScript = GetComponent<STACK2D>();
         backgroundRenderer = GetComponent<SpriteRenderer>();
 
-        // 自动获取名为 "artwork" 的子物体 SpriteRenderer
         if (artworkRenderer == null)
         {
             Transform artTransform = transform.Find("artwork");
@@ -47,41 +35,22 @@ public class HoverDrag2D : MonoBehaviour
 
     void Update()
     {
-        if (hoverCooldown)
-        {
-            hoverCooldownTimer -= Time.deltaTime;
-            if (hoverCooldownTimer <= 0f) hoverCooldown = false;
-        }
-
-        if (!isDragging && !hoverCooldown)
-            CheckHover();
-        else
-            isHovering = false;
-
-        Vector3 desiredScale = originalScale;
-        if (isDragging)
-            desiredScale = originalScale * pressScaleFactor;
-        else if (isHovering)
-            desiredScale = originalScale * hoverScaleFactor;
-
-        transform.localScale = Vector3.Lerp(transform.localScale, desiredScale, Time.deltaTime * lerpSpeed);
-
-        if (isDragging)
+        if (isDragging && stackScript != null)
         {
             Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             mouseWorldPos.z = transform.position.z;
-            transform.position = mouseWorldPos + dragOffset;
+            Vector3 targetPos = mouseWorldPos + dragOffset;
+            stackScript.MoveDragStack(targetPos);
         }
     }
 
     void OnMouseDown()
     {
-        isDragging = true;
-        isHovering = false;
-
         Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         mouseWorldPos.z = transform.position.z;
         dragOffset = transform.position - mouseWorldPos;
+
+        isDragging = true;
 
         if (artworkRenderer != null)
             artworkRenderer.sortingOrder = sortingOrderOnDrag;
@@ -96,8 +65,6 @@ public class HoverDrag2D : MonoBehaviour
     {
         if (!isDragging) return;
         isDragging = false;
-        hoverCooldown = true;
-        hoverCooldownTimer = hoverCooldownTime;
 
         if (stackScript != null)
             stackScript.EndDrag();
@@ -105,19 +72,10 @@ public class HoverDrag2D : MonoBehaviour
             ResetSortingOrder();
     }
 
-    private void CheckHover()
-    {
-        Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        Vector2 mousePos2D = new Vector2(mousePos.x, mousePos.y);
-        RaycastHit2D hit = Physics2D.Raycast(mousePos2D, Vector2.zero);
-        isHovering = (hit.collider != null && hit.collider.gameObject == gameObject);
-    }
-
     public void ForceReset()
     {
         isDragging = false;
-        isHovering = false;
-        transform.localScale = originalScale;
+        transform.localScale = Vector3.one;
         ResetSortingOrder();
     }
 
@@ -129,3 +87,4 @@ public class HoverDrag2D : MonoBehaviour
             backgroundRenderer.sortingOrder = originalSortingOrder;
     }
 }
+

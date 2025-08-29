@@ -1,46 +1,50 @@
-// STACK2D.cs
+ï»¿//STACK2D.cs
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 
 public class STACK2D : MonoBehaviour
 {
-    [Header("¼ì²â²ÎÊı")]
+    [Header("Detect Settings")]
     public float detectRadius = 1.5f;
     public LayerMask stackableLayer;
 
-    [Header("¶ÑµşÓë¶¯»­")]
-    public Vector3 stackOffset = new Vector3(0, -1f, 0);
+    [Header("Stack Settings")]
+    public Vector3 stackOffset = new Vector3(0, -0.2f, 0);
     public float snapSpeed = 10f;
 
-    [Header("±êÇ©ÑéÖ¤")]
+    [Header("Valid Tags")]
     public string[] validTags = new string[] { "Unit" };
 
-    [Header("¸ßÁÁÌáÊ¾")]
+    [Header("Highlight Border")]
     public GameObject borderObject;
 
-    [HideInInspector] public STACK2D stackAbove; // ¶Ñ¶¥ÒıÓÃ
+    [HideInInspector] public STACK2D stackAbove;
+    [HideInInspector] public STACK2D stackBelow;
 
     private bool isDragging = false;
     private GameObject nearestStackTarget = null;
+
     private HoverDrag2D hoverDragScript;
-    private SpriteRenderer artworkRenderer;
-    private bool isStacked = false;
+    [HideInInspector] public SpriteRenderer artworkRenderer;
+
+    private bool isStacked = false; // å½“å‰æ‹–åŠ¨çš„å †å é“¾
+    private List<STACK2D> dragStack = new List<STACK2D>();
 
     public bool IsStacked() => isStacked;
 
     void Start()
     {
-        if (borderObject != null) borderObject.SetActive(false);
+        if (borderObject != null)
+            borderObject.SetActive(false);
 
         hoverDragScript = GetComponent<HoverDrag2D>();
-
         if (hoverDragScript != null)
         {
             artworkRenderer = hoverDragScript.artworkRenderer;
             if (artworkRenderer == null)
             {
-                // ×Ô¶¯»ñÈ¡ÃûÎª "artwork" µÄ×ÓÎïÌå SpriteRenderer
                 Transform artTransform = transform.Find("artwork");
                 if (artTransform != null)
                     artworkRenderer = artTransform.GetComponent<SpriteRenderer>();
@@ -51,22 +55,44 @@ public class STACK2D : MonoBehaviour
     void Update()
     {
         if (isDragging)
-        {
             CheckNearbyObjects();
-        }
     }
 
     public void StartDrag()
     {
         isDragging = true;
         isStacked = false;
-        stackAbove = null;
+
+        // æ„å»ºæ‹–åŠ¨é“¾ï¼šå½“å‰å¡ + ä¸Šæ–¹æ‰€æœ‰å¡
+        dragStack.Clear();
+        STACK2D current = this;
+        int safety = 0;
+        while (current != null && safety < 50)
+        {
+            dragStack.Add(current);
+            current = current.stackAbove;
+            safety++;
+        }
+
+        // ä¸ä¸‹æ–¹æ–­å¼€
+        if (stackBelow != null)
+        {
+            stackBelow.stackAbove = null;
+            stackBelow = null;
+        }
+
+        // ä¸Šæ–¹çš„å¡ä¹Ÿæ–­å¼€
+        foreach (var card in dragStack)
+        {
+            if (card.stackAbove != null && !dragStack.Contains(card.stackAbove))
+                card.stackAbove.stackBelow = null;
+            card.stackAbove = null;
+        }
     }
 
     public void EndDrag()
     {
         isDragging = false;
-
         if (borderObject != null)
             borderObject.SetActive(false);
 
@@ -80,6 +106,7 @@ public class STACK2D : MonoBehaviour
                 hoverDragScript.ResetSortingOrder();
         }
 
+        dragStack.Clear();
         nearestStackTarget = null;
     }
 
@@ -89,14 +116,12 @@ public class STACK2D : MonoBehaviour
         float minDist = float.MaxValue;
 
         Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, detectRadius, stackableLayer);
-
         foreach (var hit in hits)
         {
             if (hit.gameObject == this.gameObject) continue;
             if (!validTags.Any(tag => hit.gameObject.CompareTag(tag))) continue;
 
-            GameObject topCard = GetTopCard(hit.gameObject);
-
+            GameObject topCard = GetTopCardSafe(hit.gameObject);
             float dist = Vector2.Distance(transform.position, topCard.transform.position);
             if (dist < minDist)
             {
@@ -109,12 +134,24 @@ public class STACK2D : MonoBehaviour
             borderObject.SetActive(nearestStackTarget != null);
     }
 
-    GameObject GetTopCard(GameObject card)
+    GameObject GetTopCardSafe(GameObject card)
     {
         STACK2D stack = card.GetComponent<STACK2D>();
-        if (stack != null && stack.stackAbove != null)
-            return GetTopCard(stack.stackAbove.gameObject);
-        return card;
+        if (stack == null) return card;
+
+        STACK2D current = stack;
+        int safetyCounter = 0;
+        while (current.stackAbove != null)
+        {
+            current = current.stackAbove;
+            safetyCounter++;
+            if (safetyCounter > 50)
+            {
+                Debug.LogWarning("Stack chain too long, breaking at " + current.name);
+                break;
+            }
+        }
+        return current.gameObject;
     }
 
     private IEnumerator SnapAndStack(GameObject target)
@@ -122,24 +159,81 @@ public class STACK2D : MonoBehaviour
         if (hoverDragScript) hoverDragScript.enabled = false;
 
         STACK2D targetStack = target.GetComponent<STACK2D>();
-        if (artworkRenderer != null && targetStack != null && targetStack.artworkRenderer != null)
-            artworkRenderer.sortingOrder = targetStack.artworkRenderer.sortingOrder + 1;
-
-        if (targetStack != null)
-            targetStack.stackAbove = this;
-
-        Vector3 targetPosition = target.transform.position + stackOffset;
-
-        while (Vector3.Distance(transform.position, targetPosition) > 0.01f)
+        if (targetStack != null && IsInChain(targetStack, this))
         {
-            transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * snapSpeed);
-            yield return null;
+            Debug.LogWarning("Invalid stack: would create a cycle!");
+            if (hoverDragScript) hoverDragScript.enabled = true;
+            yield break;
         }
 
-        transform.position = targetPosition;
-        isStacked = true;
+        // è°ƒæ•´æ‹–åŠ¨é“¾æ¸²æŸ“é¡ºåº
+        int baseOrder = targetStack != null && targetStack.artworkRenderer != null ? targetStack.artworkRenderer.sortingOrder + 1 : 0;
+        for (int i = 0; i < dragStack.Count; i++)
+        {
+            if (dragStack[i].artworkRenderer != null)
+                dragStack[i].artworkRenderer.sortingOrder = baseOrder + i;
+        }
+
+        // è¿æ¥å †å 
+        if (targetStack != null)
+        {
+            targetStack.stackAbove = dragStack[0];
+            dragStack[0].stackBelow = targetStack;
+        }
+
+        // æ‹–åŠ¨é“¾å¸é™„
+        for (int i = 0; i < dragStack.Count; i++)
+        {
+            Vector3 targetPos = (i == 0 ? target.transform.position : dragStack[i - 1].transform.position) + stackOffset;
+            dragStack[i].transform.position = targetPos;
+            dragStack[i].isStacked = true;
+        }
 
         if (hoverDragScript) hoverDragScript.enabled = true;
+        yield return null;
+    }
+
+    private bool IsInChain(STACK2D a, STACK2D b)
+    {
+        STACK2D current = a;
+        int safetyCounter = 0;
+        while (current != null)
+        {
+            if (current == b) return true;
+            current = current.stackAbove;
+            safetyCounter++;
+            if (safetyCounter > 50) break;
+        }
+        return false;
+    }
+
+    public void MoveDragStack(Vector3 newPos)
+    {
+        if (dragStack.Count == 0) return;
+        Vector3 delta = newPos - dragStack[0].transform.position;
+        foreach (var card in dragStack)
+            card.transform.position += delta;
+    }
+
+    public void MoveWholeStack(Vector3 newPos)
+    {
+        STACK2D bottom = this;
+        int safetyCounter = 0;
+        while (bottom.stackBelow != null && safetyCounter < 50)
+        {
+            bottom = bottom.stackBelow;
+            safetyCounter++;
+        }
+
+        Vector3 delta = newPos - bottom.transform.position;
+        STACK2D current = bottom;
+        safetyCounter = 0;
+        while (current != null && safetyCounter < 50)
+        {
+            current.transform.position += delta;
+            current = current.stackAbove;
+            safetyCounter++;
+        }
     }
 }
 
