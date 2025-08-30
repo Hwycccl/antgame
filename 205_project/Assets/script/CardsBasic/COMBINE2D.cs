@@ -4,7 +4,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-
 public class COMBINE2D : MonoBehaviour
 {
     [Header("组合配方数据库")]
@@ -12,179 +11,188 @@ public class COMBINE2D : MonoBehaviour
 
     private Coroutine combinationCoroutine;
     private float remainingTime = 0f;
-    private bool isPaused = false;
     private COMBINE2D combinationPartner;
     private CardsCombinationRule currentCombination;
 
-    private HoverDrag2D hoverDragScript;
+    private CardsBehaviour cardBehaviour;
 
-    void Start()
+    void Awake()
     {
-        hoverDragScript = GetComponent<HoverDrag2D>();
+        cardBehaviour = GetComponent<CardsBehaviour>();
     }
 
-    public bool AttemptToStartCombination(COMBINE2D targetCombine, bool isInitiator)
+    /// <summary>
+    /// 尝试与附近的卡牌进行合成，这是合成的发起点
+    /// </summary>
+    /// <returns>如果成功找到合成对象并开始合成，则返回true</returns>
+    public bool TryToCombineWithNearbyCards()
     {
-        if (combinationData == null || combinationPartner != null || targetCombine.combinationPartner != null) return false;
+        // 如果已经在合成中，则直接返回
+        if (IsInCombination()) return false;
 
-        var thisCardBeh = GetComponent<CardsBehaviour>();
-        var targetCardBeh = targetCombine.GetComponent<CardsBehaviour>();
+        // 设置一个检测半径来寻找附近的卡牌
+        float detectionRadius = 1.5f;
+        Collider2D[] hitColliders = Physics2D.OverlapCircleAll(transform.position, detectionRadius);
 
-        if (thisCardBeh != null && targetCardBeh != null)
+        foreach (var hitCollider in hitColliders)
         {
-            var card1Data = thisCardBeh.GetCardData();
-            var card2Data = targetCardBeh.GetCardData();
-            var inputCards = new List<CardsBasicData> { card1Data, card2Data };
-            var combination = combinationData.GetCombination(inputCards);
+            // 排除自己
+            if (hitCollider.gameObject == gameObject) continue;
 
-            if (combination != null)
+            var otherCombineScript = hitCollider.GetComponent<COMBINE2D>();
+            // 检查对方是否存在且没有在合成中
+            if (otherCombineScript != null && !otherCombineScript.IsInCombination())
             {
-                SetupCombination(combination, targetCombine);
-                targetCombine.SetupCombination(combination, this);
-
-                if (isInitiator)
+                // 尝试与这张卡牌开始合成
+                if (AttemptToStartCombination(otherCombineScript))
                 {
-                    var timerCoroutine = StartCoroutine(CombinationTimer());
-                    combinationCoroutine = timerCoroutine;
-                    targetCombine.combinationCoroutine = timerCoroutine;
+                    return true; // 成功找到并开始合成
                 }
-                return true;
             }
         }
+
+        return false; // 没有找到可以合成的对象
+    }
+
+    /// <summary>
+    /// 尝试与一个具体的目标卡牌开始合成流程
+    /// </summary>
+    private bool AttemptToStartCombination(COMBINE2D targetCombine)
+    {
+        if (combinationData == null) return false;
+
+        var card1Data = cardBehaviour.GetCardData();
+        var card2Data = targetCombine.cardBehaviour.GetCardData();
+
+        if (card1Data == null || card2Data == null) return false;
+
+        var inputCards = new List<CardsBasicData> { card1Data, card2Data };
+        var combination = combinationData.GetCombination(inputCards);
+
+        // 如果找到了匹配的合成规则
+        if (combination != null)
+        {
+            // 在自己和对方身上都启动合成流程
+            StartCombination(combination, targetCombine);
+            targetCombine.StartCombination(combination, this);
+            return true;
+        }
+
         return false;
     }
 
-    private void SetupCombination(CardsCombinationRule combination, COMBINE2D partner)
+    /// <summary>
+    /// 设置合成状态并启动计时器
+    /// </summary>
+    private void StartCombination(CardsCombinationRule combination, COMBINE2D partner)
     {
         currentCombination = combination;
         combinationPartner = partner;
         remainingTime = currentCombination.time;
+
+        // 停止可能存在的旧计时器
+        if (combinationCoroutine != null)
+        {
+            StopCoroutine(combinationCoroutine);
+        }
+        combinationCoroutine = StartCoroutine(CombinationTimer());
     }
 
+    /// <summary>
+    /// 合成倒计时协程
+    /// </summary>
     private IEnumerator CombinationTimer()
     {
-        Debug.Log("组合计时开始... 剩余 " + remainingTime + " 秒");
+        Debug.Log($"合成开始: {currentCombination.combinationName}, 需要 {remainingTime} 秒.");
         while (remainingTime > 0)
         {
-            if (!isPaused)
-            {
-                remainingTime -= Time.deltaTime;
-                if (combinationPartner != null) combinationPartner.remainingTime = remainingTime;
-            }
+            remainingTime -= Time.deltaTime;
+            // 可以在这里更新UI来显示剩余时间
             yield return null;
         }
 
-        Debug.Log("计时结束！");
+        Debug.Log("合成完成!");
         ResolveCombination();
     }
 
+    /// <summary>
+    /// 处理合成结果，销毁原料并生成新卡牌
+    /// </summary>
     private void ResolveCombination()
     {
         if (currentCombination == null || combinationPartner == null) return;
 
-        HandUI.Instance.StartCoroutine(GenerateCardAfterDelay(currentCombination));
+        // 标记需要销毁的卡牌
+        bool destroySelf = false;
+        bool destroyPartner = false;
 
-        var inputCards = new List<CardsBasicData> {
-            GetComponent<CardsBehaviour>().GetCardData(),
-            combinationPartner.GetComponent<CardsBehaviour>().GetCardData()
-        };
-
-        bool selfSurvived = true;
-        bool partnerSurvived = true;
-        var partnerObject = combinationPartner.gameObject;
+        var selfData = cardBehaviour.GetCardData();
+        var partnerData = combinationPartner.cardBehaviour.GetCardData();
 
         foreach (var req in currentCombination.requiredCards)
         {
-            if (req.specificCard != null)
+            if (req.destroyOnCombine)
             {
-                if (inputCards.Contains(req.specificCard) && req.destroyOnCombine)
+                if (req.specificCard != null) // 按特定卡牌匹配
                 {
-                    if (GetComponent<CardsBehaviour>().GetCardData() == req.specificCard) selfSurvived = false;
-                    if (combinationPartner.GetComponent<CardsBehaviour>().GetCardData() == req.specificCard) partnerSurvived = false;
+                    if (selfData == req.specificCard) destroySelf = true;
+                    if (partnerData == req.specificCard) destroyPartner = true;
                 }
-            }
-            else
-            {
-                if (inputCards.Any(c => c.cardType == req.cardType) && req.destroyOnCombine)
+                else // 按卡牌类型匹配
                 {
-                    if (GetComponent<CardsBehaviour>().GetCardData().cardType == req.cardType) selfSurvived = false;
-                    if (combinationPartner.GetComponent<CardsBehaviour>().GetCardData().cardType == req.cardType) partnerSurvived = false;
+                    if (selfData.cardType == req.cardType) destroySelf = true;
+                    if (partnerData.cardType == req.cardType) destroyPartner = true;
                 }
             }
         }
 
-        if (!selfSurvived) Destroy(gameObject);
-        if (!partnerSurvived) Destroy(partnerObject);
-
-        if (selfSurvived) ResetCombinationState(false);
-        if (partnerSurvived && partnerObject != null)
-            partnerObject.GetComponent<COMBINE2D>().ResetCombinationState(false);
-    }
-
-    private IEnumerator GenerateCardAfterDelay(CardsCombinationRule combination)
-    {
-        yield return null;
-
-        if (combination.results.Count > 0)
+        // 生成结果卡牌
+        foreach (var result in currentCombination.results)
         {
-            foreach (var result in combination.results)
+            if (Random.value <= result.probability) // 按概率生成
             {
-                if (Random.value <= result.probability)
+                for (int i = 0; i < result.quantity; i++)
                 {
-                    for (int i = 0; i < result.quantity; i++)
-                        HandUI.Instance.AddCardToHand(result.resultCard);
+                    HandUI.Instance.AddCardToHand(result.resultCard);
                 }
             }
         }
-    }
 
-    public void PauseCombination()
-    {
-        if (combinationPartner != null)
+        // 获取伙伴的游戏对象，以防它先被销毁
+        GameObject partnerObject = combinationPartner.gameObject;
+
+        // 销毁卡牌
+        if (destroySelf)
         {
-            isPaused = true;
-            combinationPartner.isPaused = true;
-            Debug.Log("计时暂停。");
+            Destroy(gameObject);
         }
-    }
-
-    public void ResumeCombination()
-    {
-        if (combinationPartner != null && isPaused)
+        if (destroyPartner)
         {
-            isPaused = false;
-            combinationPartner.isPaused = false;
-            Debug.Log("计时恢复。");
+            Destroy(partnerObject);
         }
+
+        // 重置状态
+        if (!destroySelf) ResetCombinationState();
+        if (!destroyPartner && partnerObject != null)
+            partnerObject.GetComponent<COMBINE2D>().ResetCombinationState();
+
     }
 
-    public void CancelCombination()
-    {
-        if (combinationPartner != null)
-            combinationPartner.ResetCombinationState(false);
-
-        ResetCombinationState(true);
-        Debug.Log("组合已取消。");
-    }
-
-    private void ResetCombinationState(bool notifyPartner)
+    /// <summary>
+    /// 重置合成状态
+    /// </summary>
+    private void ResetCombinationState()
     {
         if (combinationCoroutine != null) StopCoroutine(combinationCoroutine);
 
-        if (notifyPartner && combinationPartner != null && combinationPartner.combinationPartner == this)
-            combinationPartner.ResetCombinationState(false);
-
         combinationCoroutine = null;
         remainingTime = 0f;
-        isPaused = false;
         combinationPartner = null;
         currentCombination = null;
-
-        if (hoverDragScript) hoverDragScript.enabled = true;
-        if (hoverDragScript) hoverDragScript.ResetSortingOrder();
     }
 
-    public bool IsInCombination() => combinationPartner != null;
-
-    public COMBINE2D GetPartner() => combinationPartner;
+    /// <summary>
+    /// 检查当前卡牌是否正在合成中
+    /// </summary>
+    public bool IsInCombination() => currentCombination != null;
 }

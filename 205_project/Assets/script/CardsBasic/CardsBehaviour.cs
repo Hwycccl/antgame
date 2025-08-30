@@ -1,6 +1,5 @@
 // CardsBehaviour.cs
 using UnityEngine;
-using TMPro;
 
 public class CardsBehaviour : MonoBehaviour
 {
@@ -9,8 +8,6 @@ public class CardsBehaviour : MonoBehaviour
 
     [Header("显示组件")]
     [SerializeField] private SpriteRenderer artworkRenderer;   // 卡牌插画
-    [SerializeField] private TextMeshPro titleText;            // 卡牌标题
-    [SerializeField] private TextMeshPro descriptionText;      // 卡牌效果描述
 
     [Header("手牌状态")]
     [SerializeField] private bool isInHand = true;
@@ -19,12 +16,12 @@ public class CardsBehaviour : MonoBehaviour
     private Transform originalParent;
 
     private HoverDrag2D hoverDragScript;
-    private STACK2D stackScript;
+    private COMBINE2D combineScript;
 
     void Awake()
     {
         hoverDragScript = GetComponent<HoverDrag2D>();
-        stackScript = GetComponent<STACK2D>();
+        combineScript = GetComponent<COMBINE2D>();
     }
 
     /// <summary>
@@ -36,12 +33,6 @@ public class CardsBehaviour : MonoBehaviour
 
         if (artworkRenderer != null && cardData.cardImage != null)
             artworkRenderer.sprite = cardData.cardImage;
-
-        if (titleText != null)
-            titleText.text = cardData.cardName;
-
-        if (descriptionText != null)
-            descriptionText.text = cardData.description;
     }
 
     /// <summary>
@@ -84,6 +75,13 @@ public class CardsBehaviour : MonoBehaviour
     public void EndDrag()
     {
         if (!isInHand) return;
+
+        // 优先尝试与附近的卡牌进行合成
+        if (combineScript != null && combineScript.TryToCombineWithNearbyCards())
+        {
+            // 如果成功找到了合成对象并开始了合成流程，则直接返回，不执行后续的卡牌使用逻辑
+            return;
+        }
 
         bool usedCard = false;
 
