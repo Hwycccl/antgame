@@ -12,13 +12,11 @@ public class HoverDrag2D : MonoBehaviour
     private bool isDragging = false;
 
     private STACK2D stackScript;
-    private SpriteRenderer backgroundRenderer;
     private int originalSortingOrder;
 
     void Start()
     {
         stackScript = GetComponent<STACK2D>();
-        backgroundRenderer = GetComponent<SpriteRenderer>();
 
         if (artworkRenderer == null)
         {
@@ -29,8 +27,6 @@ public class HoverDrag2D : MonoBehaviour
 
         if (artworkRenderer != null)
             originalSortingOrder = artworkRenderer.sortingOrder;
-        else if (backgroundRenderer != null)
-            originalSortingOrder = backgroundRenderer.sortingOrder;
     }
 
     void Update()
@@ -52,11 +48,6 @@ public class HoverDrag2D : MonoBehaviour
 
         isDragging = true;
 
-        if (artworkRenderer != null)
-            artworkRenderer.sortingOrder = sortingOrderOnDrag;
-        else if (backgroundRenderer != null)
-            backgroundRenderer.sortingOrder = sortingOrderOnDrag;
-
         if (stackScript != null)
             stackScript.StartDrag();
     }
@@ -67,9 +58,13 @@ public class HoverDrag2D : MonoBehaviour
         isDragging = false;
 
         if (stackScript != null)
+        {
             stackScript.EndDrag();
+        }
         else
+        {
             ResetSortingOrder();
+        }
     }
 
     public void ForceReset()
@@ -83,8 +78,12 @@ public class HoverDrag2D : MonoBehaviour
     {
         if (artworkRenderer != null)
             artworkRenderer.sortingOrder = originalSortingOrder;
-        else if (backgroundRenderer != null)
-            backgroundRenderer.sortingOrder = originalSortingOrder;
+    }
+
+    // 这个方法用于在成功堆叠后，更新自己“原始”的渲染层级记录
+    public void StoreNewOriginalOrder()
+    {
+        if (artworkRenderer != null)
+            originalSortingOrder = artworkRenderer.sortingOrder;
     }
 }
-

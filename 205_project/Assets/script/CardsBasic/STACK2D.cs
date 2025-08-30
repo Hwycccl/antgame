@@ -1,4 +1,5 @@
 ﻿//STACK2D.cs
+// STACK2D.cs
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
@@ -26,10 +27,10 @@ public class STACK2D : MonoBehaviour
     private bool isDragging = false;
     private GameObject nearestStackTarget = null;
 
-    private HoverDrag2D hoverDragScript;
+    [HideInInspector] public HoverDrag2D hoverDragScript;
     [HideInInspector] public SpriteRenderer artworkRenderer;
 
-    private bool isStacked = false; // 当前拖动的堆叠链
+    private bool isStacked = false;
     private List<STACK2D> dragStack = new List<STACK2D>();
 
     public bool IsStacked() => isStacked;
@@ -58,35 +59,35 @@ public class STACK2D : MonoBehaviour
             CheckNearbyObjects();
     }
 
+    // === 主要修改点 1: StartDrag 逻辑恢复为“分离”模式 ===
     public void StartDrag()
     {
         isDragging = true;
         isStacked = false;
 
-        // 构建拖动链：当前卡 + 上方所有卡
+        // 1. 构建拖动链：从当前被点击的卡牌 + 它上方所有卡牌
         dragStack.Clear();
         STACK2D current = this;
         int safety = 0;
-        while (current != null && safety < 50)
+        int dragIndex = 0;
+        while (current != null && safety < 100)
         {
             dragStack.Add(current);
+            // 2. 为拖动链中的每一张牌设置新的渲染层级
+            if (current.hoverDragScript != null && current.hoverDragScript.artworkRenderer != null)
+            {
+                current.hoverDragScript.artworkRenderer.sortingOrder = current.hoverDragScript.sortingOrderOnDrag + dragIndex;
+            }
             current = current.stackAbove;
+            dragIndex++;
             safety++;
         }
 
-        // 与下方断开
+        // 3. 与下方的牌断开连接
         if (stackBelow != null)
         {
             stackBelow.stackAbove = null;
             stackBelow = null;
-        }
-
-        // 上方的卡也断开
-        foreach (var card in dragStack)
-        {
-            if (card.stackAbove != null && !dragStack.Contains(card.stackAbove))
-                card.stackAbove.stackBelow = null;
-            card.stackAbove = null;
         }
     }
 
@@ -102,8 +103,12 @@ public class STACK2D : MonoBehaviour
         }
         else
         {
-            if (hoverDragScript != null)
-                hoverDragScript.ResetSortingOrder();
+            // === 主要修改点 2: 如果没有堆叠，则重置被分离出来的整个堆叠的渲染层级 ===
+            foreach (var card in dragStack)
+            {
+                if (card.hoverDragScript != null)
+                    card.hoverDragScript.ResetSortingOrder();
+            }
         }
 
         dragStack.Clear();
@@ -118,7 +123,9 @@ public class STACK2D : MonoBehaviour
         Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, detectRadius, stackableLayer);
         foreach (var hit in hits)
         {
-            if (hit.gameObject == this.gameObject) continue;
+            // 防止堆叠链中的牌互相检测
+            if (dragStack.Exists(card => card.gameObject == hit.gameObject)) continue;
+
             if (!validTags.Any(tag => hit.gameObject.CompareTag(tag))) continue;
 
             GameObject topCard = GetTopCardSafe(hit.gameObject);
@@ -145,7 +152,7 @@ public class STACK2D : MonoBehaviour
         {
             current = current.stackAbove;
             safetyCounter++;
-            if (safetyCounter > 50)
+            if (safetyCounter > 100)
             {
                 Debug.LogWarning("Stack chain too long, breaking at " + current.name);
                 break;
@@ -156,32 +163,37 @@ public class STACK2D : MonoBehaviour
 
     private IEnumerator SnapAndStack(GameObject target)
     {
-        if (hoverDragScript) hoverDragScript.enabled = false;
-
         STACK2D targetStack = target.GetComponent<STACK2D>();
-        if (targetStack != null && IsInChain(targetStack, this))
+        if (targetStack != null && IsInChain(targetStack, dragStack[0]))
         {
             Debug.LogWarning("Invalid stack: would create a cycle!");
-            if (hoverDragScript) hoverDragScript.enabled = true;
+            EndDrag();
             yield break;
         }
 
-        // 调整拖动链渲染顺序
-        int baseOrder = targetStack != null && targetStack.artworkRenderer != null ? targetStack.artworkRenderer.sortingOrder + 1 : 0;
+        int baseOrder = 0;
+        if (targetStack != null)
+        {
+            var targetHoverDrag = targetStack.GetComponent<HoverDrag2D>();
+            if (targetHoverDrag != null && targetHoverDrag.artworkRenderer != null)
+                baseOrder = targetHoverDrag.artworkRenderer.sortingOrder + 1;
+        }
+
         for (int i = 0; i < dragStack.Count; i++)
         {
             if (dragStack[i].artworkRenderer != null)
                 dragStack[i].artworkRenderer.sortingOrder = baseOrder + i;
+
+            if (dragStack[i].hoverDragScript != null)
+                dragStack[i].hoverDragScript.StoreNewOriginalOrder();
         }
 
-        // 连接堆叠
         if (targetStack != null)
         {
             targetStack.stackAbove = dragStack[0];
             dragStack[0].stackBelow = targetStack;
         }
 
-        // 拖动链吸附
         for (int i = 0; i < dragStack.Count; i++)
         {
             Vector3 targetPos = (i == 0 ? target.transform.position : dragStack[i - 1].transform.position) + stackOffset;
@@ -189,7 +201,6 @@ public class STACK2D : MonoBehaviour
             dragStack[i].isStacked = true;
         }
 
-        if (hoverDragScript) hoverDragScript.enabled = true;
         yield return null;
     }
 
@@ -202,38 +213,19 @@ public class STACK2D : MonoBehaviour
             if (current == b) return true;
             current = current.stackAbove;
             safetyCounter++;
-            if (safetyCounter > 50) break;
+            if (safetyCounter > 100) break;
         }
         return false;
     }
 
+    // === 主要修改点 3: MoveDragStack 逻辑适配 ===
+    // (这个方法不需要修改，因为它总是基于被点击的牌来移动整个dragStack)
     public void MoveDragStack(Vector3 newPos)
     {
         if (dragStack.Count == 0) return;
-        Vector3 delta = newPos - dragStack[0].transform.position;
+        // newPos 是被点击牌的目标位置, this.transform.position 是被点击牌的当前位置
+        Vector3 delta = newPos - this.transform.position;
         foreach (var card in dragStack)
             card.transform.position += delta;
     }
-
-    public void MoveWholeStack(Vector3 newPos)
-    {
-        STACK2D bottom = this;
-        int safetyCounter = 0;
-        while (bottom.stackBelow != null && safetyCounter < 50)
-        {
-            bottom = bottom.stackBelow;
-            safetyCounter++;
-        }
-
-        Vector3 delta = newPos - bottom.transform.position;
-        STACK2D current = bottom;
-        safetyCounter = 0;
-        while (current != null && safetyCounter < 50)
-        {
-            current.transform.position += delta;
-            current = current.stackAbove;
-            safetyCounter++;
-        }
-    }
 }
-
