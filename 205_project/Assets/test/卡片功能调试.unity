@@ -208,6 +208,7 @@ MonoBehaviour:
   borderObject: {fileID: 0}
   stackAbove: {fileID: 0}
   stackBelow: {fileID: 0}
+  hoverDragScript: {fileID: 0}
   artworkRenderer: {fileID: 0}
 --- !u!114 &126359570
 MonoBehaviour:
@@ -342,7 +343,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3283929863490310576, guid: b5a6af1236af44c45966f00cf30d41eb, type: 3}
       propertyPath: stackOffset.y
-      value: -1
+      value: -2
       objectReference: {fileID: 0}
     - target: {fileID: 7733143904966822346, guid: b5a6af1236af44c45966f00cf30d41eb, type: 3}
       propertyPath: m_Name
@@ -525,6 +526,7 @@ MonoBehaviour:
   borderObject: {fileID: 0}
   stackAbove: {fileID: 0}
   stackBelow: {fileID: 0}
+  hoverDragScript: {fileID: 0}
   artworkRenderer: {fileID: 0}
 --- !u!114 &1304390379
 MonoBehaviour:
@@ -881,6 +883,7 @@ MonoBehaviour:
   borderObject: {fileID: 0}
   stackAbove: {fileID: 0}
   stackBelow: {fileID: 0}
+  hoverDragScript: {fileID: 0}
   artworkRenderer: {fileID: 0}
 --- !u!114 &1668340417
 MonoBehaviour:
@@ -1023,7 +1026,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3283929863490310576, guid: 089b1eecde23e3145ac8e22ae4bb4d7a, type: 3}
       propertyPath: stackOffset.y
-      value: -1
+      value: -2
       objectReference: {fileID: 0}
     - target: {fileID: 7733143904966822346, guid: 089b1eecde23e3145ac8e22ae4bb4d7a, type: 3}
       propertyPath: m_Name
@@ -1104,7 +1107,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3283929863490310576, guid: 3a71dcb7ab379cd4aa232dcf9603ae59, type: 3}
       propertyPath: stackOffset.y
-      value: -1
+      value: -2
       objectReference: {fileID: 0}
     - target: {fileID: 3283929863490310576, guid: 3a71dcb7ab379cd4aa232dcf9603ae59, type: 3}
       propertyPath: stackableLayer.m_Bits
@@ -1189,7 +1192,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3283929863490310576, guid: b933d532484063444bfb9ec39e813f9b, type: 3}
       propertyPath: stackOffset.y
-      value: -1
+      value: -2
       objectReference: {fileID: 0}
     - target: {fileID: 7733143904966822346, guid: b933d532484063444bfb9ec39e813f9b, type: 3}
       propertyPath: m_Name
