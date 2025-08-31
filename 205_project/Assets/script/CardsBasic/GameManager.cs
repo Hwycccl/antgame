@@ -1,3 +1,6 @@
+//
+// GameManager.cs (修改後)
+//
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -5,11 +8,13 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
 
-    [Header("起始卡组")]
-    [SerializeField] private List<CardsBasicData> startingDeck = new List<CardsBasicData>();
+    [Header("起始卡牌")]
+    [Tooltip("遊戲開始時，直接在場上生成的卡牌")]
+    [SerializeField] private List<CardsBasicData> startingCards = new List<CardsBasicData>();
 
-    [Header("起始手牌数量")]
-    [SerializeField] private int startingHandSize = 1;
+    [Header("初始卡牌生成設置")]
+    [SerializeField] private Vector3 startPosition = new Vector3(0, 0, 0);
+    [SerializeField] private float initialSpawnSpacing = 2.0f; // 每張初始卡牌之間的間距
 
     private void Awake()
     {
@@ -23,53 +28,21 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        // 1. 初始化卡组
-        CardsManager.Instance.InitializePlayerDeck(startingDeck);
-
-        // 2. 抽起始手牌
-        for (int i = 0; i < startingHandSize; i++)
+        // 遊戲開始時，生成所有起始卡牌
+        for (int i = 0; i < startingCards.Count; i++)
         {
-            CardsBasicData card = CardsManager.Instance.DrawCard();
-            if (card != null)
+            var cardData = startingCards[i];
+            if (cardData != null)
             {
-                HandUI.Instance.AddCardToHand(card);  // ? UI 层负责显示
+                // 計算每張初始卡牌的位置
+                Vector3 spawnPos = startPosition + new Vector3(i * initialSpawnSpacing, 0, 0);
+
+                // 同時通知邏輯和UI
+                CardsManager.Instance.AddCardToLogic(cardData);
+                HandUI.Instance.AddCardToView(cardData, spawnPos);
             }
         }
 
-        Debug.Log("游戏开始！发了 " + startingHandSize + " 张手牌");
-    }
-
-    /// <summary>
-    /// 结束回合（你可以在这里清空手牌、弃掉不用的牌等）
-    /// </summary>
-    public void EndTurn()
-    {
-        Debug.Log("回合结束，弃掉所有手牌");
-
-        List<CardsBasicData> hand = CardsManager.Instance.GetPlayerHand();
-
-        foreach (CardsBasicData card in hand)
-        {
-            CardsManager.Instance.UseCard(card); // 或者写个 DiscardCard 方法
-        }
-
-        HandUI.Instance.ClearHand();
-    }
-
-    /// <summary>
-    /// 开始新回合（重新抽牌）
-    /// </summary>
-    public void StartTurn()
-    {
-        Debug.Log("新回合开始，抽 " + startingHandSize + " 张牌");
-
-        for (int i = 0; i < startingHandSize; i++)
-        {
-            CardsBasicData card = CardsManager.Instance.DrawCard();
-            if (card != null)
-            {
-                HandUI.Instance.AddCardToHand(card);
-            }
-        }
+        Debug.Log("遊戲開始！生成了 " + startingCards.Count + " 張起始卡牌");
     }
 }

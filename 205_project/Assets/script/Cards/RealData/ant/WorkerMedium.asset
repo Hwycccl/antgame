@@ -15,6 +15,7 @@ MonoBehaviour:
   cardName: WorkerMedium
   cardImage: {fileID: 0}
   description: "\u4E3B\u529B\u5207\u53F6"
+  cardPrefab: {fileID: 7733143904966822346, guid: 03a7a6b62833e3640b095a9dbe16faa8, type: 3}
   cardType: 0
   isConsumable: 1
   isStackable: 1

@@ -100,6 +100,7 @@ GameObject:
   - component: {fileID: 6802857735173601373}
   - component: {fileID: 2414740563752937770}
   - component: {fileID: 3283929863490310576}
+  - component: {fileID: -663160870489506285}
   m_Layer: 6
   m_Name: ToWorkerSmall
   m_TagString: Unit
@@ -237,9 +238,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cardData: {fileID: 11400000, guid: cdb1d11273d42b241b535e8bad3666e4, type: 2}
   artworkRenderer: {fileID: 6301334984188482733}
-  titleText: {fileID: 0}
-  descriptionText: {fileID: 0}
-  isInHand: 1
 --- !u!114 &2414740563752937770
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -252,10 +250,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d7117aa174b019488c21afde47ebf03, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hoverScaleFactor: 0.85
-  pressScaleFactor: 0.7
-  lerpSpeed: 5
-  hoverCooldownTime: 1
   sortingOrderOnDrag: 100
   artworkRenderer: {fileID: 0}
 --- !u!114 &3283929863490310576
@@ -274,8 +268,26 @@ MonoBehaviour:
   stackableLayer:
     serializedVersion: 2
     m_Bits: 64
-  stackOffset: {x: 0, y: -0.2, z: 0}
+  stackOffset: {x: 0, y: -2, z: 0}
   snapSpeed: 10
   validTags:
   - Unit
   borderObject: {fileID: 0}
+  stackAbove: {fileID: 0}
+  stackBelow: {fileID: 0}
+  hoverDragScript: {fileID: 0}
+  artworkRenderer: {fileID: 0}
+--- !u!114 &-663160870489506285
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7733143904966822346}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c30c6bb2db977314385ed3497df922a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  combinationData: {fileID: 11400000, guid: 9d6ae4176a38d24478a5c3ffb7111cfb, type: 2}
+  spawnOffset: 2

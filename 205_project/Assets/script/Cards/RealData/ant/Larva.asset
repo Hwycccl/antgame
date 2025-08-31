@@ -15,6 +15,7 @@ MonoBehaviour:
   cardName: Larva
   cardImage: {fileID: 0}
   description: "\u7531\u8681\u540E\u4EA7\u51FA"
+  cardPrefab: {fileID: 7733143904966822346, guid: 58f365928063c40489b6f5d1f18bbd4e, type: 3}
   cardType: 0
   isConsumable: 1
   isStackable: 1

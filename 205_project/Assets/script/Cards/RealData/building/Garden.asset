@@ -15,6 +15,7 @@ MonoBehaviour:
   cardName: Garden
   cardImage: {fileID: 0}
   description: "\u57F9\u517B\u771F\u83CC\u7684\u5730\u65B9"
+  cardPrefab: {fileID: 7733143904966822346, guid: 43e0937d6ef54e248a06ced31d471ef4, type: 3}
   cardType: 2
   isConsumable: 0
   isStackable: 1

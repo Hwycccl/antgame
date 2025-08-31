@@ -1,4 +1,4 @@
-// CardsBehaviour.cs
+// CardsBehaviour.cs 
 using UnityEngine;
 
 public class CardsBehaviour : MonoBehaviour
@@ -7,10 +7,10 @@ public class CardsBehaviour : MonoBehaviour
     [SerializeField] private CardsBasicData cardData;
 
     [Header("显示组件")]
-    [SerializeField] private SpriteRenderer artworkRenderer;   // 卡牌插画
+    [SerializeField] private SpriteRenderer artworkRenderer;
 
-    [Header("手牌状态")]
-    [SerializeField] private bool isInHand = true;
+    // 在新的游戏模式下，我们不再需要 is"InHand" 这个布尔值了
+    // [SerializeField] private bool isInHand = true; 
 
     private Vector3 originalPosition;
     private Transform originalParent;
@@ -24,9 +24,6 @@ public class CardsBehaviour : MonoBehaviour
         combineScript = GetComponent<COMBINE2D>();
     }
 
-    /// <summary>
-    /// 初始化卡牌显示和数据
-    /// </summary>
     public void Initialize(CardsBasicData data)
     {
         cardData = data;
@@ -35,89 +32,47 @@ public class CardsBehaviour : MonoBehaviour
             artworkRenderer.sprite = cardData.cardImage;
     }
 
-    /// <summary>
-    /// 设置卡牌是否在手牌中
-    /// </summary>
-    public void SetInHand(bool inHand)
-    {
-        isInHand = inHand;
-    }
+    // SetInHand 方法也不再需要
+    // public void SetInHand(bool inHand) { ... }
 
-    /// <summary>
-    /// 点击卡牌（显示详细信息等）
-    /// </summary>
     public void OnClick()
     {
         if (cardData != null)
         {
             Debug.Log($"点击卡牌: {cardData.cardName}");
-            // TODO: 可以在这里打开卡牌详细信息界面
         }
     }
 
-    /// <summary>
-    /// 开始拖拽（由 HoverDrag2D 调用）
-    /// </summary>
     public void BeginDrag()
     {
-        if (!isInHand) return;
-
         originalPosition = transform.position;
         originalParent = transform.parent;
 
-        // 让卡牌显示在最上层
         transform.SetParent(transform.root);
     }
 
-    /// <summary>
-    /// 结束拖拽（由 HoverDrag2D 调用）
-    /// </summary>
     public void EndDrag()
     {
-        if (!isInHand) return;
-
-        // 优先尝试与附近的卡牌进行合成
+        // --- 错误 CS1061 修正点 ---
+        // 这里的逻辑被大大简化了。
+        // 首先，我们尝试进行合成。如果合成成功，COMBINE2D 脚本会自己负责销毁原料卡牌。
         if (combineScript != null && combineScript.TryToCombineWithNearbyCards())
         {
-            // 如果成功找到了合成对象并开始了合成流程，则直接返回，不执行后续的卡牌使用逻辑
+            // 如果合成流程已经开始，我们在这里就什么都不用做了。
             return;
         }
 
-        bool usedCard = false;
+        // 如果没有找到合成对象，并且卡牌也没有被堆叠（这由STACK2D脚本处理），
+        // 那么我们就把卡牌送回它原来的位置。
+        // 所有关于 "PlayArea" 和调用 "UseCard" 的旧代码都已被移除。
 
-        // 检测鼠标释放位置是否在可放置区域
-        Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        mouseWorldPos.z = 0f;
-        RaycastHit2D hit = Physics2D.Raycast(mouseWorldPos, Vector2.zero);
+        transform.SetParent(originalParent);
+        transform.position = originalPosition;
 
-        if (hit.collider != null)
-        {
-            if (hit.collider.CompareTag("PlayArea"))
-            {
-                // 尝试使用卡牌
-                usedCard = CardsManager.Instance.UseCard(cardData);
-            }
-        }
-
-        if (!usedCard)
-        {
-            // 返回原位置
-            transform.SetParent(originalParent);
-            transform.position = originalPosition;
-
-            // 重置渲染顺序
-            if (hoverDragScript != null) hoverDragScript.ResetSortingOrder();
-        }
-        else
-        {
-            // 使用成功销毁卡牌
-            Destroy(gameObject);
-        }
+        if (hoverDragScript != null) hoverDragScript.ResetSortingOrder();
+        // --- 修正结束 ---
     }
 
-    /// <summary>
-    /// 获取卡牌数据
-    /// </summary>
     public CardsBasicData GetCardData()
     {
         return cardData;
