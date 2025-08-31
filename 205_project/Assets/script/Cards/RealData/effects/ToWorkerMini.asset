@@ -15,6 +15,7 @@ MonoBehaviour:
   cardName: ToWorkerMini
   cardImage: {fileID: 0}
   description: 
+  cardPrefab: {fileID: 7733143904966822346, guid: c93a39dde0c740942a95ca1f410d1a0c, type: 3}
   cardType: 3
   isConsumable: 1
   isStackable: 0

@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 4872479539825186503}
   - component: {fileID: 3874680181357784323}
   - component: {fileID: 2524282762265080516}
+  - component: {fileID: -3850817827376640838}
   m_Layer: 6
   m_Name: QueenAntPrefab
   m_TagString: Unit
@@ -156,9 +157,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cardData: {fileID: 11400000, guid: 58158bc3dfe812a49babdd1eb0cf73b7, type: 2}
   artworkRenderer: {fileID: 765383128447003135}
-  titleText: {fileID: 0}
-  descriptionText: {fileID: 0}
-  isInHand: 1
 --- !u!114 &4872479539825186503
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -171,10 +169,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d7117aa174b019488c21afde47ebf03, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hoverScaleFactor: 0.85
-  pressScaleFactor: 0.7
-  lerpSpeed: 5
-  hoverCooldownTime: 1
   sortingOrderOnDrag: 100
   artworkRenderer: {fileID: 0}
 --- !u!114 &3874680181357784323
@@ -193,11 +187,15 @@ MonoBehaviour:
   stackableLayer:
     serializedVersion: 2
     m_Bits: 64
-  stackOffset: {x: 0, y: -0.2, z: 0}
+  stackOffset: {x: 0, y: -2, z: 0}
   snapSpeed: 10
   validTags:
   - Unit
   borderObject: {fileID: 0}
+  stackAbove: {fileID: 0}
+  stackBelow: {fileID: 0}
+  hoverDragScript: {fileID: 0}
+  artworkRenderer: {fileID: 0}
 --- !u!222 &2524282762265080516
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -206,6 +204,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3410890804114593696}
   m_CullTransparentMesh: 1
+--- !u!114 &-3850817827376640838
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3410890804114593696}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c30c6bb2db977314385ed3497df922a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  combinationData: {fileID: 11400000, guid: 9d6ae4176a38d24478a5c3ffb7111cfb, type: 2}
+  spawnOffset: 2
 --- !u!1 &6171645711287112465
 GameObject:
   m_ObjectHideFlags: 0

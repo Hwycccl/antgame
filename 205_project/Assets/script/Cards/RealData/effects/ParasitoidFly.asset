@@ -15,6 +15,7 @@ MonoBehaviour:
   cardName: ParasitoidFly
   cardImage: {fileID: 0}
   description: "\u653B\u51FB\u5DE5\u8681\uFF0C\u58EB\u5175\u8681\u53EF\u6D88\u706D"
+  cardPrefab: {fileID: 7733143904966822346, guid: 378e92e4690b5154090266698a452860, type: 3}
   cardType: 3
   isConsumable: 1
   isStackable: 0

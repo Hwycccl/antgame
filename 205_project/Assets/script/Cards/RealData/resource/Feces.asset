@@ -15,6 +15,7 @@ MonoBehaviour:
   cardName: Reces
   cardImage: {fileID: 0}
   description: "\u80A5\u6599\uFF0C\u52A0\u901F\u771F\u83CC\u751F\u957F"
+  cardPrefab: {fileID: 7733143904966822346, guid: 5e59f34594e893c40bc9b7c9ef7a497a, type: 3}
   cardType: 1
   isConsumable: 1
   isStackable: 1

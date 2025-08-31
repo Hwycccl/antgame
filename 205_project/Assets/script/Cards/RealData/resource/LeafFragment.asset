@@ -15,6 +15,7 @@ MonoBehaviour:
   cardName: LeafFragment
   cardImage: {fileID: 0}
   description: "\u5DE5\u8681\u5207\u788E\u7684\u53F6\u7247\uFF0C\u53EF\u4F5C\u4E3A\u98DF\u7269\u6216\u517B\u83CC\u57FA\u8D28"
+  cardPrefab: {fileID: 7733143904966822346, guid: cbfe6e2c23e016a48b90e35ff85bf0fb, type: 3}
   cardType: 1
   isConsumable: 1
   isStackable: 1

@@ -15,6 +15,7 @@ MonoBehaviour:
   cardName: WorkerSmall
   cardImage: {fileID: 0}
   description: "\u5B88\u62A4\u642C\u8FD0\uFF0C\u652F\u63F4"
+  cardPrefab: {fileID: 7733143904966822346, guid: b5a6af1236af44c45966f00cf30d41eb, type: 3}
   cardType: 0
   isConsumable: 1
   isStackable: 1

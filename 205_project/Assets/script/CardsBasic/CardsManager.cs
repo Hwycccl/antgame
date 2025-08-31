@@ -1,23 +1,23 @@
-//CardsManager
+// CardsManager.cs 
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq; // 引入Linq以便于查询
 
 /// <summary>
-/// 卡牌管理器，处理卡牌的获取、使用和游戏逻辑
+/// 改造后的卡牌管理器，负责追踪场上所有卡牌并动态计算资源。
+/// 游戏逻辑的核心（大脑）。
 /// </summary>
 public class CardsManager : MonoBehaviour
 {
     public static CardsManager Instance { get; private set; }
 
-    [Header("玩家卡牌")]
-    [SerializeField] private List<CardsBasicData> playerDeck = new List<CardsBasicData>();
-    [SerializeField] private List<CardsBasicData> playerHand = new List<CardsBasicData>();
-    [SerializeField] private List<CardsBasicData> playerDiscardPile = new List<CardsBasicData>();
+    // 移除了牌库和弃牌堆，现在只追踪场上所有的卡牌数据
+    [SerializeField] private List<CardsBasicData> cardsOnField = new List<CardsBasicData>();
 
-    [Header("资源")]
-    public int leafResources = 10;
-    public int fungusResources = 5;
-    public int fertilizerResources = 2;
+    // 公开的资源量，方便UI脚本读取
+    public int FungusAmount { get; private set; }
+    public int LeafFragmentAmount { get; private set; }
+    public int FecesAmount { get; private set; }
 
     private void Awake()
     {
@@ -30,114 +30,71 @@ public class CardsManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
-    /// <summary>
-    /// 初始化玩家卡组
-    /// </summary>
-    public void InitializePlayerDeck(List<CardsBasicData> startingDeck)
+    private void Start()
     {
-        playerDeck = new List<CardsBasicData>(startingDeck);
-        ShuffleDeck();
+        // 游戏开始时计算一次初始资源
+        CalculateResourceTotals();
     }
 
     /// <summary>
-    /// 洗牌
+    /// 将一张卡牌的“数据”添加到场上逻辑中
     /// </summary>
-    public void ShuffleDeck()
+    public void AddCardToLogic(CardsBasicData card)
     {
-        for (int i = 0; i < playerDeck.Count; i++)
+        if (card != null)
         {
-            CardsBasicData temp = playerDeck[i];
-            int randomIndex = UnityEngine.Random.Range(i, playerDeck.Count); // 明确使用UnityEngine.Random
-            playerDeck[i] = playerDeck[randomIndex];
-            playerDeck[randomIndex] = temp;
+            cardsOnField.Add(card);
+            // 每当卡牌数量变化时，都重新计算总资源
+            CalculateResourceTotals();
         }
     }
 
     /// <summary>
-    /// 抽牌
+    /// 从场上逻辑中移除一张卡牌的“数据”
     /// </summary>
-    public CardsBasicData DrawCard()
+    public void RemoveCardFromLogic(CardsBasicData card)
     {
-        if (playerDeck.Count == 0)
+        if (card != null && cardsOnField.Contains(card))
         {
-            if (playerDiscardPile.Count == 0)
+            cardsOnField.Remove(card);
+            // 每当卡牌数量变化时，都重新计算总资源
+            CalculateResourceTotals();
+        }
+    }
+
+    /// <summary>
+    /// 核心功能：遍历场上所有卡牌，计算每种资源的-总和
+    /// </summary>
+    private void CalculateResourceTotals()
+    {
+        // 先清零
+        FungusAmount = 0;
+        LeafFragmentAmount = 0;
+        FecesAmount = 0;
+
+        foreach (CardsBasicData card in cardsOnField)
+        {
+            // 检查这张卡是否是资源卡
+            if (card is ResourceBasicData resourceCard)
             {
-                Debug.LogWarning("牌库和弃牌堆都为空，无法抽牌");
-                return null;
+                // 根据资源类型累加其价值
+                switch (resourceCard.resourceType)
+                {
+                    case ResourceBasicData.ResourceType.Fungus:
+                        FungusAmount += resourceCard.resourceValue;
+                        break;
+                    case ResourceBasicData.ResourceType.LeafFragment:
+                        LeafFragmentAmount += resourceCard.resourceValue;
+                        break;
+                    case ResourceBasicData.ResourceType.Feces:
+                        FecesAmount += resourceCard.resourceValue;
+                        break;
+                }
             }
-            // 重新洗入弃牌堆
-            playerDeck.AddRange(playerDiscardPile);
-            playerDiscardPile.Clear();
-            ShuffleDeck();
         }
 
-        CardsBasicData drawnCard = playerDeck[0];
-        playerDeck.RemoveAt(0);
-        playerHand.Add(drawnCard);
-        return drawnCard;
-    }
-
-    /// <summary>
-    /// 使用卡牌
-    /// </summary>
-    public bool UseCard(CardsBasicData card)
-    {
-        if (!playerHand.Contains(card))
-        {
-            Debug.LogWarning("尝试使用不在手牌中的卡牌");
-            return false;
-        }
-
-        // 检查资源是否足够
-        if (leafResources < card.leafCost ||
-            fungusResources < card.fungusCost ||
-            fertilizerResources < card.fertilizer)
-        {
-            Debug.Log("资源不足，无法使用此卡牌");
-            return false;
-        }
-
-        // 扣除资源
-        leafResources -= card.leafCost;
-        fungusResources -= card.fungusCost;
-        fertilizerResources -= card.fertilizer;
-
-        // 处理卡牌效果
-        // 这里可以添加具体的效果逻辑
-
-        // 从手牌移除
-        playerHand.Remove(card);
-
-        // 如果不是消耗品，放入弃牌堆
-        if (!card.isConsumable)
-        {
-            playerDiscardPile.Add(card);
-        }
-
-        return true;
-    }
-
-    /// <summary>
-    /// 获取当前手牌
-    /// </summary>
-    public List<CardsBasicData> GetPlayerHand()
-    {
-        return new List<CardsBasicData>(playerHand);
-    }
-
-    /// <summary>
-    /// 获取当前牌库数量
-    /// </summary>
-    public int GetDeckCount()
-    {
-        return playerDeck.Count;
-    }
-
-    /// <summary>
-    /// 获取当前弃牌堆数量
-    /// </summary>
-    public int GetDiscardPileCount()
-    {
-        return playerDiscardPile.Count;
+        // 可以在这里触发一个事件，通知UI更新
+        // 为了简单，我们让UI脚本在Update里自己来读
+        Debug.Log($"资源更新: 真菌={FungusAmount}, 碎叶={LeafFragmentAmount}, 粪便={FecesAmount}");
     }
 }

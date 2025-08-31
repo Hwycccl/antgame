@@ -15,6 +15,7 @@ MonoBehaviour:
   cardName: Hatchery
   cardImage: {fileID: 0}
   description: "\u5E7C\u866B\u6210\u957F"
+  cardPrefab: {fileID: 7733143904966822346, guid: a402a3cd18ed44a47b7e52337f6afb49, type: 3}
   cardType: 2
   isConsumable: 0
   isStackable: 1

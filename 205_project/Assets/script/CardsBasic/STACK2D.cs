@@ -1,5 +1,6 @@
-﻿//STACK2D.cs
-// STACK2D.cs
+﻿//
+// STACK2D.cs (已修正)
+//
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
@@ -59,13 +60,11 @@ public class STACK2D : MonoBehaviour
             CheckNearbyObjects();
     }
 
-    // === 主要修改点 1: StartDrag 逻辑恢复为“分离”模式 ===
     public void StartDrag()
     {
         isDragging = true;
         isStacked = false;
 
-        // 1. 构建拖动链：从当前被点击的卡牌 + 它上方所有卡牌
         dragStack.Clear();
         STACK2D current = this;
         int safety = 0;
@@ -73,7 +72,6 @@ public class STACK2D : MonoBehaviour
         while (current != null && safety < 100)
         {
             dragStack.Add(current);
-            // 2. 为拖动链中的每一张牌设置新的渲染层级
             if (current.hoverDragScript != null && current.hoverDragScript.artworkRenderer != null)
             {
                 current.hoverDragScript.artworkRenderer.sortingOrder = current.hoverDragScript.sortingOrderOnDrag + dragIndex;
@@ -83,7 +81,6 @@ public class STACK2D : MonoBehaviour
             safety++;
         }
 
-        // 3. 与下方的牌断开连接
         if (stackBelow != null)
         {
             stackBelow.stackAbove = null;
@@ -103,7 +100,6 @@ public class STACK2D : MonoBehaviour
         }
         else
         {
-            // === 主要修改点 2: 如果没有堆叠，则重置被分离出来的整个堆叠的渲染层级 ===
             foreach (var card in dragStack)
             {
                 if (card.hoverDragScript != null)
@@ -123,9 +119,7 @@ public class STACK2D : MonoBehaviour
         Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, detectRadius, stackableLayer);
         foreach (var hit in hits)
         {
-            // 防止堆叠链中的牌互相检测
             if (dragStack.Exists(card => card.gameObject == hit.gameObject)) continue;
-
             if (!validTags.Any(tag => hit.gameObject.CompareTag(tag))) continue;
 
             GameObject topCard = GetTopCardSafe(hit.gameObject);
@@ -201,7 +195,17 @@ public class STACK2D : MonoBehaviour
             dragStack[i].isStacked = true;
         }
 
-        yield return null;
+        // --- 错误 CS1061 修正点 ---
+        // 在堆叠动作完成后，获取刚刚放下的这张牌上的 COMBINE2D 脚本，
+        // 并让它尝试与周围的牌进行合成。
+        var combineScript = dragStack[0].GetComponent<COMBINE2D>();
+        if (combineScript != null)
+        {
+            // 我们等待一帧，以确保所有卡牌的位置都已更新完毕，然后再检查合成
+            yield return null;
+            combineScript.TryToCombineWithNearbyCards();
+        }
+        // --- 修正结束 ---
     }
 
     private bool IsInChain(STACK2D a, STACK2D b)
@@ -218,12 +222,9 @@ public class STACK2D : MonoBehaviour
         return false;
     }
 
-    // === 主要修改点 3: MoveDragStack 逻辑适配 ===
-    // (这个方法不需要修改，因为它总是基于被点击的牌来移动整个dragStack)
     public void MoveDragStack(Vector3 newPos)
     {
         if (dragStack.Count == 0) return;
-        // newPos 是被点击牌的目标位置, this.transform.position 是被点击牌的当前位置
         Vector3 delta = newPos - this.transform.position;
         foreach (var card in dragStack)
             card.transform.position += delta;
