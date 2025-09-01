@@ -15,7 +15,7 @@ MonoBehaviour:
   cardName: QueenAnt
   cardImage: {fileID: 0}
   description: 
-  cardPrefab: {fileID: 3410890804114593696, guid: de019a920d22c934f89cfc9d70e3177f, type: 3}
+  cardPrefab: {fileID: 7733143904966822346, guid: 7f6178534e515e24988985f8cea36a2a, type: 3}
   cardType: 0
   isConsumable: 0
   isStackable: 1
