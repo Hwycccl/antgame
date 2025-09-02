@@ -1,4 +1,4 @@
-﻿// STACK2D.cs (最終運行版)
+﻿// STACK2D.cs (修改後)
 using UnityEngine;
 using System.Collections.Generic;
 
@@ -7,7 +7,7 @@ public class STACK2D : MonoBehaviour
     private HoverDrag2D hoverDragScript;
     private CardsBehaviour cardsBehaviour;
 
-    private bool isHovering = false;
+    private bool isHovering = false; // 這個變量是關鍵
     private STACK2D parentStack;
     private List<STACK2D> childStacks = new List<STACK2D>();
 
@@ -29,9 +29,18 @@ public class STACK2D : MonoBehaviour
         isHovering = false;
     }
 
+    // --- 新增點 開始 ---
+    /// <summary>
+    /// 公開方法，用於檢查此卡牌當前是否被另一張拖拽的卡牌懸停
+    /// </summary>
+    public bool IsCurrentlyHovered()
+    {
+        return isHovering;
+    }
+    // --- 新增點 結束 ---
+
     public bool OnEndDrag()
     {
-        // 使用新的 API (修正 CS0618 警告)
         STACK2D[] allStacks = FindObjectsByType<STACK2D>(FindObjectsSortMode.None);
 
         foreach (STACK2D otherStack in allStacks)
