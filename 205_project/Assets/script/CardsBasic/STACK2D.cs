@@ -7,7 +7,7 @@ public class STACK2D : MonoBehaviour
     private HoverDrag2D hoverDragScript;
     private CardsBehaviour cardsBehaviour;
 
-    private bool isHovering = false; // 這個變量是關鍵
+    private bool isHovering = false;
     private STACK2D parentStack;
     private List<STACK2D> childStacks = new List<STACK2D>();
 
@@ -29,7 +29,6 @@ public class STACK2D : MonoBehaviour
         isHovering = false;
     }
 
-    // --- 新增點 開始 ---
     /// <summary>
     /// 公開方法，用於檢查此卡牌當前是否被另一張拖拽的卡牌懸停
     /// </summary>
@@ -37,7 +36,6 @@ public class STACK2D : MonoBehaviour
     {
         return isHovering;
     }
-    // --- 新增點 結束 ---
 
     public bool OnEndDrag()
     {
@@ -54,14 +52,17 @@ public class STACK2D : MonoBehaviour
         return false; // 沒有找到可以堆疊的對象
     }
 
+    // --- 核心修改點 1 ---
     private bool CanStackOn(STACK2D otherStack)
     {
-        string myCardName = this.cardsBehaviour.GetCardData().cardName;
-        string otherCardName = otherStack.cardsBehaviour.GetCardData().cardName;
-        return myCardName == otherCardName && !otherStack.IsChildOf(this);
+        // 不再检查卡牌名称，只保留不能堆叠在自己子集上的逻辑
+        // 这将允许任何不同名的卡牌进行堆叠
+        return !otherStack.IsChildOf(this);
     }
 
-    private void StackOn(STACK2D newParentStack)
+    // --- 核心修改點 2 ---
+    // 将此方法从 private 改为 public，以便 CardsBehaviour 可以调用
+    public void StackOn(STACK2D newParentStack)
     {
         if (parentStack != null)
         {

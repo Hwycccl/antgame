@@ -102,7 +102,7 @@ GameObject:
   - component: {fileID: 3283929863490310576}
   - component: {fileID: -5996446916120527929}
   m_Layer: 6
-  m_Name: workerMedium
+  m_Name: WorkerMedium
   m_TagString: Unit
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

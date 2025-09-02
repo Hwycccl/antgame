@@ -48,38 +48,34 @@ public class CardsBehaviour : MonoBehaviour
         // 1. 檢查我們是否正懸停在任何其他卡牌上
         STACK2D hoveredStack = FindHoveredStack();
 
-        if (hoveredStack == null)
+        if (hoveredStack != null)
         {
-            // --- 情況 A: 不在任何卡牌上 ---
-            // 允許卡牌停留在新的位置，並更新其“原始”位置信息
-            originalPosition = transform.position;
-            originalParent = transform.parent;
+            // --- 情況 A: 正在懸停在某張卡牌上 ---
 
-            // 恢復原始的渲染層級
-            if (hoverDragScript != null)
+            // 1. 直接进行堆叠
+            if (stackScript != null)
             {
-                hoverDragScript.ResetSortingOrder();
+                // 注意：确保 STACK2D.cs 中的 StackOn 方法是 public
+                stackScript.StackOn(hoveredStack);
+            }
+
+            // 2. 堆叠后，立即尝试进行合成检测
+            if (combineScript != null)
+            {
+                combineScript.TryToCombineWithNearbyCards();
             }
         }
         else
         {
-            // --- 情況 B: 正在懸停在某張卡牌上 ---
-            // 嘗試進行堆疊。stackScript.OnEndDrag() 會自動處理能否堆疊的判斷
-            if (stackScript != null && stackScript.OnEndDrag())
+            // --- 情況 B: 不在任何卡牌上 ---
+            // 允许卡牌停留在新的位置，并更新其“原始”位置信息
+            originalPosition = transform.position;
+            originalParent = transform.parent;
+
+            // 恢复原始的渲染层级
+            if (hoverDragScript != null)
             {
-                // 如果堆疊成功，立即嘗試進行合成檢測
-                if (combineScript != null)
-                {
-                    combineScript.TryToCombineWithNearbyCards();
-                }
-                // 堆疊成功，流程結束
-                return;
-            }
-            else
-            {
-                // 如果我們懸停在一張卡上，但堆疊失敗（例如卡牌名稱不同）
-                // 則將卡牌送回它原來的位置
-                ReturnToOriginalPosition();
+                hoverDragScript.ResetSortingOrder();
             }
         }
     }
