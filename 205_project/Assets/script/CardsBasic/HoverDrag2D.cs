@@ -1,122 +1,95 @@
-// HoverDrag2D.cs (Minimal Fix Version)
+// HoverDrag2D.cs (推荐用于正交摄像机的最终版本)
 using UnityEngine;
-using System.Linq;
 
-[RequireComponent(typeof(Collider2D))]
+[RequireComponent(typeof(CardsBehaviour))]
 public class HoverDrag2D : MonoBehaviour
 {
-    [Header("Render Settings")]
-    public int sortingOrderOnDrag = 100;
-    public SpriteRenderer artworkRenderer;
+    private CardsBehaviour cardsBehaviour;
+    private SpriteRenderer spriteRenderer;
+    private Camera mainCamera;
 
-    private Vector3 dragOffset;
-    private bool isDragging = false;
-
-    private STACK2D stackScript;
+    private Vector3 offset;
     private int originalSortingOrder;
 
-    private static HoverDrag2D currentlyDragged;
+    private float distanceToCamera; // 用于存储拖拽开始时的固定摄像机距离
+
+    [Header("拖拽時提升的渲染層級")]
+    [Tooltip("拖拽時，將卡牌的 Order in Layer 提升到這個值，確保它在最上層")]
+    public int sortingOrderOnDrag = 100;
+
+    void Awake()
+    {
+        cardsBehaviour = GetComponent<CardsBehaviour>();
+        mainCamera = Camera.main;
+    }
 
     void Start()
     {
-        stackScript = GetComponent<STACK2D>();
-
-        if (artworkRenderer == null)
+        spriteRenderer = cardsBehaviour.GetArtworkRenderer();
+        if (spriteRenderer != null)
         {
-            Transform artTransform = transform.Find("artwork");
-            if (artTransform != null)
-                artworkRenderer = artTransform.GetComponent<SpriteRenderer>();
+            originalSortingOrder = spriteRenderer.sortingOrder;
         }
-
-        if (artworkRenderer != null)
-            originalSortingOrder = artworkRenderer.sortingOrder;
     }
 
-    void Update()
+    void OnMouseDown()
     {
-        if (Input.GetMouseButtonDown(0))
+        // 1. 在拖拽开始时，计算一次卡牌平面到摄像机的距离并存储
+        //    对于正交摄像机，这确保了坐标转换的稳定性
+        distanceToCamera = mainCamera.WorldToScreenPoint(transform.position).z;
+
+        // 2. 计算鼠标点击位置与卡牌中心的偏移量
+        offset = transform.position - GetMouseWorldPos();
+
+        // 3. 提升渲染层级，让卡牌显示在最上面
+        if (spriteRenderer != null)
         {
-            if (currentlyDragged != null) return;
-
-            RaycastHit2D[] hits = Physics2D.RaycastAll(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
-
-            if (hits.Length > 0)
-            {
-                var topHit = hits
-                    .Select(h => h.collider.GetComponent<HoverDrag2D>())
-                    .Where(script => script != null && script.artworkRenderer != null)
-                    .OrderByDescending(script => script.artworkRenderer.sortingOrder)
-                    .FirstOrDefault();
-
-                if (topHit != null)
-                {
-                    currentlyDragged = topHit;
-                    currentlyDragged.StartDragAction();
-                }
-            }
+            spriteRenderer.sortingOrder = sortingOrderOnDrag;
         }
 
-        if (isDragging && currentlyDragged == this)
+        // 4. 通知 CardsBehaviour 拖拽已开始
+        if (cardsBehaviour != null)
         {
-            Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            mouseWorldPos.z = transform.position.z;
-            Vector3 targetPos = mouseWorldPos + dragOffset;
-
-            if (stackScript != null)
-                stackScript.MoveDragStack(targetPos);
-            else
-                transform.position = targetPos;
-        }
-
-        if (Input.GetMouseButtonUp(0))
-        {
-            if (currentlyDragged != null)
-            {
-                currentlyDragged.EndDragAction();
-                currentlyDragged = null;
-            }
+            cardsBehaviour.BeginDrag();
         }
     }
 
-    private void StartDragAction()
+    void OnMouseDrag()
     {
-        isDragging = true;
-
-        Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        mouseWorldPos.z = transform.position.z;
-        dragOffset = transform.position - mouseWorldPos;
-
-        if (stackScript != null)
-            stackScript.StartDrag();
-        else if (artworkRenderer != null)
-            artworkRenderer.sortingOrder = sortingOrderOnDrag;
+        transform.position = GetMouseWorldPos() + offset;
     }
 
-    private void EndDragAction()
+    void OnMouseUp()
     {
-        isDragging = false;
-
-        if (stackScript != null)
+        if (cardsBehaviour != null)
         {
-            stackScript.EndDrag();
-        }
-        else
-        {
-            ResetSortingOrder();
+            cardsBehaviour.EndDrag();
         }
     }
 
-    // === 核心修正点 ===
-    // 修正了赋值方向的BUG。这是解决您问题的关键。
+    // 将鼠标的屏幕坐标转换为世界坐标
+    private Vector3 GetMouseWorldPos()
+    {
+        Vector3 mousePoint = Input.mousePosition;
+        // Z 轴的值使用拖拽开始时存储的固定距离
+        mousePoint.z = distanceToCamera;
+        return mainCamera.ScreenToWorldPoint(mousePoint);
+    }
+
     public void ResetSortingOrder()
     {
-        if (artworkRenderer != null)
-            artworkRenderer.sortingOrder = originalSortingOrder;
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.sortingOrder = originalSortingOrder;
+        }
     }
 
-    public void StoreNewOriginalOrder()
+    public void SetNewOriginalOrder(int newOrder)
     {
-        if (artworkRenderer != null)
-            originalSortingOrder = artworkRenderer.sortingOrder;
+        originalSortingOrder = newOrder;
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.sortingOrder = newOrder;
+        }
     }
 }

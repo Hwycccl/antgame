@@ -1,68 +1,52 @@
-// HandUI.cs 
-using System.Collections.Generic;
+// HandUI.cs (最終簡化版 - 移除 CardContainer)
 using UnityEngine;
 
 public class HandUI : MonoBehaviour
 {
-    public static HandUI Instance;
-    [SerializeField] private Transform handArea; // 用來擺放初始卡牌的父物件
+    public static HandUI Instance { get; private set; }
 
-    // 我們不再需要手動映射預制件，所以移除了舊的字典和Prefab欄位
-    private List<GameObject> cardsOnField = new List<GameObject>(); // 將 handCards 更名為 cardsOnField
+    // 我們不再需要 cardContainer 了
+    // [SerializeField] private Transform cardContainer;
 
-    private void Awake()
+    void Awake()
     {
-        if (Instance == null)
-            Instance = this;
-        else
+        if (Instance != null && Instance != this)
+        {
             Destroy(gameObject);
+            return;
+        }
+        Instance = this;
     }
 
-    // --- 核心修改點 開始 ---
     /// <summary>
-    /// 將單張卡牌的視覺物件顯示到指定的場上位置
+    /// 在遊戲世界中創建卡牌的視覺物件
     /// </summary>
-    /// <param name="cardData">要生成的卡牌數據</param>
-    /// <param name="spawnPosition">生成位置的世界座標</param>
-    public void AddCardToView(CardsBasicData cardData, Vector3 spawnPosition)
+    /// <param name="cardData">要創建的卡牌數據</param>
+    /// <param name="position">創建的位置</param>
+    public void AddCardToView(CardsBasicData cardData, Vector3 position)
     {
-        // 1. 檢查卡牌數據中的預制件是否已設定
-        if (cardData.cardPrefab == null)
+        if (cardData == null || cardData.cardPrefab == null)
         {
-            Debug.LogError($"卡牌 {cardData.cardName} 的數據中沒有指定 Card Prefab！");
+            Debug.LogError("要創建的卡牌數據或其預製件為空！");
             return;
         }
 
-        // 2. 直接使用卡牌數據中指定的預制件，並在指定位置生成
-        GameObject cardObj = Instantiate(cardData.cardPrefab, spawnPosition, Quaternion.identity);
+        // --- 核心修改點 ---
+        // 1. 直接實例化卡牌預製件，不設定父物件，這樣它就會出現在場景的最外層
+        GameObject cardObject = Instantiate(cardData.cardPrefab, position, Quaternion.identity);
 
-        // 可選：如果你希望所有卡牌都在一個統一的父物件下管理，可以取消下面這行的註解
-        // cardObj.transform.SetParent(handArea);
+        // 2. （可選）給新卡牌一個有意義的名字，方便在 Hierarchy 中查看
+        cardObject.name = cardData.cardName;
 
-        var cardBehaviour = cardObj.GetComponent<CardsBehaviour>();
-        if (cardBehaviour != null)
+        // 3. 初始化卡牌上的腳本
+        CardsBehaviour behaviour = cardObject.GetComponent<CardsBehaviour>();
+        if (behaviour != null)
         {
-            cardBehaviour.Initialize(cardData);
+            behaviour.Initialize(cardData);
         }
         else
         {
-            Debug.LogWarning($"預制體 {cardData.cardPrefab.name} 上沒有 CardsBehaviour 組件");
+            Debug.LogError($"卡牌預製件 '{cardData.cardName}' 上沒有找到 CardsBehaviour 腳本！");
         }
-
-        cardsOnField.Add(cardObj);
-    }
-    // --- 核心修改點 結束 ---
-
-
-    /// <summary>
-    /// 清空場上所有卡牌的顯示
-    /// </summary>
-    public void ClearHand()
-    {
-        foreach (GameObject card in cardsOnField)
-        {
-            Destroy(card);
-        }
-        cardsOnField.Clear();
     }
 }

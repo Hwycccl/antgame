@@ -1,232 +1,129 @@
-﻿//
-// STACK2D.cs (已修正)
-//
+﻿// STACK2D.cs (修改後)
 using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 
 public class STACK2D : MonoBehaviour
 {
-    [Header("Detect Settings")]
-    public float detectRadius = 1.5f;
-    public LayerMask stackableLayer;
+    private HoverDrag2D hoverDragScript;
+    private CardsBehaviour cardsBehaviour;
 
-    [Header("Stack Settings")]
-    public Vector3 stackOffset = new Vector3(0, -0.2f, 0);
-    public float snapSpeed = 10f;
+    private bool isHovering = false; // 這個變量是關鍵
+    private STACK2D parentStack;
+    private List<STACK2D> childStacks = new List<STACK2D>();
 
-    [Header("Valid Tags")]
-    public string[] validTags = new string[] { "Unit" };
+    public float stackOffset = 0.1f;
 
-    [Header("Highlight Border")]
-    public GameObject borderObject;
-
-    [HideInInspector] public STACK2D stackAbove;
-    [HideInInspector] public STACK2D stackBelow;
-
-    private bool isDragging = false;
-    private GameObject nearestStackTarget = null;
-
-    [HideInInspector] public HoverDrag2D hoverDragScript;
-    [HideInInspector] public SpriteRenderer artworkRenderer;
-
-    private bool isStacked = false;
-    private List<STACK2D> dragStack = new List<STACK2D>();
-
-    public bool IsStacked() => isStacked;
-
-    void Start()
+    void Awake()
     {
-        if (borderObject != null)
-            borderObject.SetActive(false);
-
         hoverDragScript = GetComponent<HoverDrag2D>();
-        if (hoverDragScript != null)
+        cardsBehaviour = GetComponent<CardsBehaviour>();
+    }
+
+    void OnMouseEnter()
+    {
+        isHovering = true;
+    }
+
+    void OnMouseExit()
+    {
+        isHovering = false;
+    }
+
+    // --- 新增點 開始 ---
+    /// <summary>
+    /// 公開方法，用於檢查此卡牌當前是否被另一張拖拽的卡牌懸停
+    /// </summary>
+    public bool IsCurrentlyHovered()
+    {
+        return isHovering;
+    }
+    // --- 新增點 結束 ---
+
+    public bool OnEndDrag()
+    {
+        STACK2D[] allStacks = FindObjectsByType<STACK2D>(FindObjectsSortMode.None);
+
+        foreach (STACK2D otherStack in allStacks)
         {
-            artworkRenderer = hoverDragScript.artworkRenderer;
-            if (artworkRenderer == null)
+            if (otherStack != this && otherStack.isHovering && CanStackOn(otherStack))
             {
-                Transform artTransform = transform.Find("artwork");
-                if (artTransform != null)
-                    artworkRenderer = artTransform.GetComponent<SpriteRenderer>();
+                StackOn(otherStack);
+                return true; // 堆疊成功
+            }
+        }
+        return false; // 沒有找到可以堆疊的對象
+    }
+
+    private bool CanStackOn(STACK2D otherStack)
+    {
+        string myCardName = this.cardsBehaviour.GetCardData().cardName;
+        string otherCardName = otherStack.cardsBehaviour.GetCardData().cardName;
+        return myCardName == otherCardName && !otherStack.IsChildOf(this);
+    }
+
+    private void StackOn(STACK2D newParentStack)
+    {
+        if (parentStack != null)
+        {
+            parentStack.childStacks.Remove(this);
+        }
+
+        transform.SetParent(newParentStack.transform);
+        parentStack = newParentStack;
+        newParentStack.childStacks.Add(this);
+
+        UpdateStackedPositionAndOrder();
+        newParentStack.ReorganizeStackOrders();
+    }
+
+    public void UpdateStackedPositionAndOrder()
+    {
+        if (parentStack != null)
+        {
+            Vector3 newPosition = parentStack.transform.position + new Vector3(0, -stackOffset, 0);
+            transform.position = newPosition;
+
+            SpriteRenderer artworkRenderer = cardsBehaviour.GetArtworkRenderer();
+            SpriteRenderer parentArtworkRenderer = parentStack.cardsBehaviour.GetArtworkRenderer();
+            if (artworkRenderer != null && parentArtworkRenderer != null)
+            {
+                artworkRenderer.sortingOrder = parentArtworkRenderer.sortingOrder + 1;
             }
         }
     }
 
-    void Update()
+    private void ReorganizeStackOrders()
     {
-        if (isDragging)
-            CheckNearbyObjects();
+        STACK2D topParent = this;
+        while (topParent.parentStack != null)
+        {
+            topParent = topParent.parentStack;
+        }
+        topParent.ApplySortingOrderRecursively(topParent.cardsBehaviour.GetArtworkRenderer().sortingOrder);
     }
 
-    public void StartDrag()
+    private void ApplySortingOrderRecursively(int baseOrder)
     {
-        isDragging = true;
-        isStacked = false;
+        cardsBehaviour.GetArtworkRenderer().sortingOrder = baseOrder;
+        hoverDragScript.SetNewOriginalOrder(baseOrder);
 
-        dragStack.Clear();
-        STACK2D current = this;
-        int safety = 0;
-        int dragIndex = 0;
-        while (current != null && safety < 100)
+        for (int i = 0; i < childStacks.Count; i++)
         {
-            dragStack.Add(current);
-            if (current.hoverDragScript != null && current.hoverDragScript.artworkRenderer != null)
-            {
-                current.hoverDragScript.artworkRenderer.sortingOrder = current.hoverDragScript.sortingOrderOnDrag + dragIndex;
-            }
-            current = current.stackAbove;
-            dragIndex++;
-            safety++;
-        }
-
-        if (stackBelow != null)
-        {
-            stackBelow.stackAbove = null;
-            stackBelow = null;
+            childStacks[i].ApplySortingOrderRecursively(baseOrder + i + 1);
         }
     }
 
-    public void EndDrag()
+    private bool IsChildOf(STACK2D potentialParent)
     {
-        isDragging = false;
-        if (borderObject != null)
-            borderObject.SetActive(false);
-
-        if (nearestStackTarget != null)
-        {
-            StartCoroutine(SnapAndStack(nearestStackTarget));
-        }
-        else
-        {
-            foreach (var card in dragStack)
-            {
-                if (card.hoverDragScript != null)
-                    card.hoverDragScript.ResetSortingOrder();
-            }
-        }
-
-        dragStack.Clear();
-        nearestStackTarget = null;
-    }
-
-    void CheckNearbyObjects()
-    {
-        nearestStackTarget = null;
-        float minDist = float.MaxValue;
-
-        Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, detectRadius, stackableLayer);
-        foreach (var hit in hits)
-        {
-            if (dragStack.Exists(card => card.gameObject == hit.gameObject)) continue;
-            if (!validTags.Any(tag => hit.gameObject.CompareTag(tag))) continue;
-
-            GameObject topCard = GetTopCardSafe(hit.gameObject);
-            float dist = Vector2.Distance(transform.position, topCard.transform.position);
-            if (dist < minDist)
-            {
-                minDist = dist;
-                nearestStackTarget = topCard;
-            }
-        }
-
-        if (borderObject != null)
-            borderObject.SetActive(nearestStackTarget != null);
-    }
-
-    GameObject GetTopCardSafe(GameObject card)
-    {
-        STACK2D stack = card.GetComponent<STACK2D>();
-        if (stack == null) return card;
-
-        STACK2D current = stack;
-        int safetyCounter = 0;
-        while (current.stackAbove != null)
-        {
-            current = current.stackAbove;
-            safetyCounter++;
-            if (safetyCounter > 100)
-            {
-                Debug.LogWarning("Stack chain too long, breaking at " + current.name);
-                break;
-            }
-        }
-        return current.gameObject;
-    }
-
-    private IEnumerator SnapAndStack(GameObject target)
-    {
-        STACK2D targetStack = target.GetComponent<STACK2D>();
-        if (targetStack != null && IsInChain(targetStack, dragStack[0]))
-        {
-            Debug.LogWarning("Invalid stack: would create a cycle!");
-            EndDrag();
-            yield break;
-        }
-
-        int baseOrder = 0;
-        if (targetStack != null)
-        {
-            var targetHoverDrag = targetStack.GetComponent<HoverDrag2D>();
-            if (targetHoverDrag != null && targetHoverDrag.artworkRenderer != null)
-                baseOrder = targetHoverDrag.artworkRenderer.sortingOrder + 1;
-        }
-
-        for (int i = 0; i < dragStack.Count; i++)
-        {
-            if (dragStack[i].artworkRenderer != null)
-                dragStack[i].artworkRenderer.sortingOrder = baseOrder + i;
-
-            if (dragStack[i].hoverDragScript != null)
-                dragStack[i].hoverDragScript.StoreNewOriginalOrder();
-        }
-
-        if (targetStack != null)
-        {
-            targetStack.stackAbove = dragStack[0];
-            dragStack[0].stackBelow = targetStack;
-        }
-
-        for (int i = 0; i < dragStack.Count; i++)
-        {
-            Vector3 targetPos = (i == 0 ? target.transform.position : dragStack[i - 1].transform.position) + stackOffset;
-            dragStack[i].transform.position = targetPos;
-            dragStack[i].isStacked = true;
-        }
-
-        // --- 错误 CS1061 修正点 ---
-        // 在堆叠动作完成后，获取刚刚放下的这张牌上的 COMBINE2D 脚本，
-        // 并让它尝试与周围的牌进行合成。
-        var combineScript = dragStack[0].GetComponent<COMBINE2D>();
-        if (combineScript != null)
-        {
-            // 我们等待一帧，以确保所有卡牌的位置都已更新完毕，然后再检查合成
-            yield return null;
-            combineScript.TryToCombineWithNearbyCards();
-        }
-        // --- 修正结束 ---
-    }
-
-    private bool IsInChain(STACK2D a, STACK2D b)
-    {
-        STACK2D current = a;
-        int safetyCounter = 0;
+        STACK2D current = this.parentStack;
         while (current != null)
         {
-            if (current == b) return true;
-            current = current.stackAbove;
-            safetyCounter++;
-            if (safetyCounter > 100) break;
+            if (current == potentialParent)
+            {
+                return true;
+            }
+            current = current.parentStack;
         }
         return false;
-    }
-
-    public void MoveDragStack(Vector3 newPos)
-    {
-        if (dragStack.Count == 0) return;
-        Vector3 delta = newPos - this.transform.position;
-        foreach (var card in dragStack)
-            card.transform.position += delta;
     }
 }
