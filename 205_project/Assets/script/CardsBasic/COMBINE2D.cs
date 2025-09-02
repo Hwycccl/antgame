@@ -1,174 +1,114 @@
-//
-// COMBINE2D.cs 
+// COMBINE2D.cs (最終功能版)
 using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+
+[RequireComponent(typeof(STACK2D))]
 public class COMBINE2D : MonoBehaviour
 {
-    [Header("組合配方資料庫")]
-    [SerializeField] private CardsCombination combinationData;
+    [Header("組合規則數據庫")]
+    [Tooltip("請將定義了所有合成配方的 ScriptableObject 拖到此處")]
+    [SerializeField] private CardsCombination combinationDatabase;
 
-    // --- 修改點 開始 ---
-    [Header("生成設置")]
-    [Tooltip("新卡牌生成時，相對於原料卡牌的水平偏移量")]
-    [SerializeField] private float spawnOffset = 2.0f;
-    // --- 修改點 結束 ---
+    private STACK2D stackScript;
 
-    private Coroutine combinationCoroutine;
-    private float remainingTime = 0f;
-    private COMBINE2D combinationPartner;
-    private CardsCombinationRule currentCombination;
-
-    private CardsBehaviour cardBehaviour;
-
-    void Awake()
+    private void Awake()
     {
-        cardBehaviour = GetComponent<CardsBehaviour>();
+        stackScript = GetComponent<STACK2D>();
     }
 
-    // (TryToCombineWithNearbyCards, AttemptToStartCombination, StartCombination, CombinationTimer 函式保持不變)
-    // ...
-
-    private void ResolveCombination()
+    /// <summary>
+    /// 嘗試對目標堆疊進行合成檢查 (由 CardsBehaviour 調用)
+    /// </summary>
+    /// <param name="targetStack">要進行合成檢查的目標堆疊的根卡牌</param>
+    public void TryToCombineWithNearbyCards(STACK2D targetStack)
     {
-        if (combinationPartner == null || gameObject.GetInstanceID() > combinationPartner.gameObject.GetInstanceID())
+        if (combinationDatabase == null)
         {
-            ResetCombinationState();
+            Debug.LogError("組合規則數據庫 (Combination Database) 未設置！");
             return;
         }
 
-        if (currentCombination == null) return;
+        // 1. 獲取目標堆疊中所有的卡牌數據
+        List<CardsBasicData> inputCardsData = targetStack.GetCardsDataInStack();
 
-        // --- 核心修改點 開始 ---
-        // 在銷毀原料卡牌前，先記錄下它們的位置用於計算生成點
-        Vector3 selfPosition = transform.position;
-        // --- 核心修改點 結束 ---
+        // 2. 在數據庫中查找是否有匹配的組合規則
+        CardsCombinationRule matchedRule = combinationDatabase.GetCombination(inputCardsData);
 
-
-        bool destroySelf = false;
-        bool destroyPartner = false;
-        var selfData = cardBehaviour.GetCardData();
-        var partnerData = combinationPartner.cardBehaviour.GetCardData();
-
-        foreach (var req in currentCombination.requiredCards)
+        // 3. 如果找到了匹配的規則，則執行合成
+        if (matchedRule != null)
         {
-            if (req.destroyOnCombine)
+            Debug.Log("成功匹配組合規則: " + matchedRule.combinationName);
+            ExecuteCombination(targetStack, matchedRule);
+        }
+    }
+
+    /// <summary>
+    /// 執行合成過程：銷毀原料，生成產物
+    /// </summary>
+    private void ExecuteCombination(STACK2D rootStack, CardsCombinationRule rule)
+    {
+        // --- 處理原料 ---
+        List<STACK2D> allStacksInGroup = new List<STACK2D>();
+        CollectStacksRecursively(rootStack, allStacksInGroup);
+        allStacksInGroup.Reverse(); // 從子級開始處理，避免父級先被銷毀
+
+        foreach (var requiredGroup in rule.requiredCards)
+        {
+            if (requiredGroup.destroyOnCombine)
             {
-                if (req.specificCard != null)
+                int countToDestroy = requiredGroup.requiredCount;
+                // 從後往前遍歷，安全地刪除
+                for (int i = allStacksInGroup.Count - 1; i >= 0; i--)
                 {
-                    if (selfData == req.specificCard) destroySelf = true;
-                    if (partnerData == req.specificCard) destroyPartner = true;
-                }
-                else
-                {
-                    if (selfData.cardType == req.cardType) destroySelf = true;
-                    if (partnerData.cardType == req.cardType) destroyPartner = true;
+                    if (countToDestroy <= 0) break;
+
+                    STACK2D currentStack = allStacksInGroup[i];
+                    CardsBasicData cardData = currentStack.GetComponent<CardsBehaviour>().GetCardData();
+
+                    bool matchesSpecific = requiredGroup.specificCard != null && requiredGroup.specificCard == cardData;
+                    bool matchesType = requiredGroup.specificCard == null && requiredGroup.cardType == cardData.cardType;
+
+                    if (matchesSpecific || matchesType)
+                    {
+                        // 從邏輯管理器和場景中移除卡牌
+                        CardsManager.Instance.RemoveCardFromLogic(cardData);
+                        Destroy(currentStack.gameObject);
+                        countToDestroy--;
+                    }
                 }
             }
         }
 
-        // 生成結果卡牌
-        foreach (var result in currentCombination.results)
+        // --- 處理產物 ---
+        Vector3 spawnPosition = rootStack.transform.position; // 在根卡牌的位置生成
+        foreach (var resultCardInfo in rule.results)
         {
-            if (Random.value <= result.probability)
+            // 考慮生成機率
+            if (Random.value <= resultCardInfo.probability)
             {
-                for (int i = 0; i < result.quantity; i++)
+                for (int i = 0; i < resultCardInfo.quantity; i++)
                 {
-                    // --- 核心修改點 開始 ---
-                    // 1. 計算生成位置：在當前卡牌位置的基礎上，向左偏移
-                    Vector3 spawnPosition = selfPosition + new Vector3(-spawnOffset, 0, 0);
+                    // 稍微錯開位置，避免完全重疊
+                    Vector3 offset = new Vector3(Random.Range(-0.1f, 0.1f), 0, 0);
 
-                    // 2. 通知邏輯層
-                    CardsManager.Instance.AddCardToLogic(result.resultCard);
-
-                    // 3. 通知UI層，並傳入卡牌數據和精確的生成位置
-                    HandUI.Instance.AddCardToView(result.resultCard, spawnPosition);
-                    // --- 核心修改點 結束 ---
+                    // 通知邏輯和UI生成新卡
+                    CardsManager.Instance.AddCardToLogic(resultCardInfo.resultCard);
+                    HandUI.Instance.AddCardToView(resultCardInfo.resultCard, spawnPosition + offset);
                 }
             }
         }
-
-        GameObject partnerObject = combinationPartner.gameObject;
-
-        if (destroySelf)
-        {
-            CardsManager.Instance.RemoveCardFromLogic(selfData);
-            Destroy(gameObject);
-        }
-        if (destroyPartner)
-        {
-            CardsManager.Instance.RemoveCardFromLogic(partnerData);
-            Destroy(partnerObject);
-        }
-
-        if (!destroySelf) ResetCombinationState();
     }
 
-    // (其他函式保持不變)
-    // ...
+    // 輔助方法：遞迴收集堆疊中的所有 STACK2D 組件
+    private void CollectStacksRecursively(STACK2D stack, List<STACK2D> stackList)
+    {
+        if (stack == null || stackList.Contains(stack)) return;
 
-    // --- 省略其他不變的函式以節省篇幅 ---
-    #region Unchanged Methods 
-    public bool TryToCombineWithNearbyCards()
-    {
-        if (IsInCombination()) return false;
-        float detectionRadius = 1.5f;
-        Collider2D[] hitColliders = Physics2D.OverlapCircleAll(transform.position, detectionRadius);
-        foreach (var hitCollider in hitColliders)
+        stackList.Add(stack);
+        foreach (var child in stack.ChildStacks)
         {
-            if (hitCollider.gameObject == gameObject) continue;
-            var otherCombineScript = hitCollider.GetComponent<COMBINE2D>();
-            if (otherCombineScript != null && !otherCombineScript.IsInCombination())
-            {
-                if (AttemptToStartCombination(otherCombineScript)) { return true; }
-            }
+            CollectStacksRecursively(child, stackList);
         }
-        return false;
     }
-    private bool AttemptToStartCombination(COMBINE2D targetCombine)
-    {
-        if (combinationData == null) return false;
-        var card1Data = cardBehaviour.GetCardData();
-        var card2Data = targetCombine.cardBehaviour.GetCardData();
-        if (card1Data == null || card2Data == null) return false;
-        var inputCards = new List<CardsBasicData> { card1Data, card2Data };
-        var combination = combinationData.GetCombination(inputCards);
-        if (combination != null)
-        {
-            StartCombination(combination, targetCombine);
-            targetCombine.StartCombination(combination, this);
-            return true;
-        }
-        return false;
-    }
-    private void StartCombination(CardsCombinationRule combination, COMBINE2D partner)
-    {
-        currentCombination = combination;
-        combinationPartner = partner;
-        remainingTime = currentCombination.time;
-        if (combinationCoroutine != null) { StopCoroutine(combinationCoroutine); }
-        combinationCoroutine = StartCoroutine(CombinationTimer());
-    }
-    private IEnumerator CombinationTimer()
-    {
-        Debug.Log($"合成開始: {currentCombination.combinationName}, 需要 {remainingTime} 秒.");
-        while (remainingTime > 0)
-        {
-            remainingTime -= Time.deltaTime;
-            yield return null;
-        }
-        Debug.Log("合成完成!");
-        ResolveCombination();
-    }
-    private void ResetCombinationState()
-    {
-        if (combinationCoroutine != null) StopCoroutine(combinationCoroutine);
-        combinationCoroutine = null;
-        remainingTime = 0f;
-        combinationPartner = null;
-        currentCombination = null;
-    }
-    public bool IsInCombination() => currentCombination != null;
-    #endregion
 }

@@ -102,7 +102,7 @@ GameObject:
   - component: {fileID: 3283929863490310576}
   - component: {fileID: -5996446916120527929}
   m_Layer: 6
-  m_Name: WorkerMedium
+  m_Name: workerMedium
   m_TagString: Unit
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -276,5 +276,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c30c6bb2db977314385ed3497df922a0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  combinationData: {fileID: 11400000, guid: 9d6ae4176a38d24478a5c3ffb7111cfb, type: 2}
-  spawnOffset: 2
+  combinationDatabase: {fileID: 11400000, guid: 9d6ae4176a38d24478a5c3ffb7111cfb, type: 2}

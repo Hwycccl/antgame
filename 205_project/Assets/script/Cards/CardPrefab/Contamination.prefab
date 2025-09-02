@@ -238,7 +238,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cardData: {fileID: 11400000, guid: 0c8db7cc11c1bc24a8c85249a89cd5a5, type: 2}
   artworkRenderer: {fileID: 6301334984188482733}
-  snapSpeed: 15
 --- !u!114 &2414740563752937770
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -252,7 +251,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sortingOrderOnDrag: 100
-  liftHeight: 0.5
 --- !u!114 &3283929863490310576
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -265,7 +263,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed95cfb25cd27bc428b008e52f38974d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  snapDistance: 2
   stackOffset: 1
 --- !u!114 &-2466145896354658343
 MonoBehaviour:
@@ -279,5 +276,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c30c6bb2db977314385ed3497df922a0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  combinationData: {fileID: 11400000, guid: 9d6ae4176a38d24478a5c3ffb7111cfb, type: 2}
-  spawnOffset: 2
+  combinationDatabase: {fileID: 11400000, guid: 9d6ae4176a38d24478a5c3ffb7111cfb, type: 2}

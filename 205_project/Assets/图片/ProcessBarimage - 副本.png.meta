@@ -130,7 +130,8 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      "ProcessBarimage - \u526F\u672C_0": 1821655432480130083
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

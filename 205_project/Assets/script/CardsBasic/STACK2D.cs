@@ -1,21 +1,23 @@
-﻿// STACK2D.cs (修改後)
+﻿// STACK2D.cs (優化版)
 using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 
 public class STACK2D : MonoBehaviour
 {
-    private HoverDrag2D hoverDragScript;
     private CardsBehaviour cardsBehaviour;
 
     private bool isHovering = false;
-    private STACK2D parentStack;
-    private List<STACK2D> childStacks = new List<STACK2D>();
 
-    public float stackOffset = 0.1f;
+    // --- 核心修改：簡化父子關係追蹤 ---
+    public STACK2D ParentStack { get; private set; }
+    public List<STACK2D> ChildStacks { get; private set; } = new List<STACK2D>();
+
+    [Tooltip("每張卡牌在堆疊中的垂直偏移量")]
+    public float stackOffset = 0.25f; // 加大偏移量以便觀察
 
     void Awake()
     {
-        hoverDragScript = GetComponent<HoverDrag2D>();
         cardsBehaviour = GetComponent<CardsBehaviour>();
     }
 
@@ -29,102 +31,111 @@ public class STACK2D : MonoBehaviour
         isHovering = false;
     }
 
-    /// <summary>
-    /// 公開方法，用於檢查此卡牌當前是否被另一張拖拽的卡牌懸停
-    /// </summary>
     public bool IsCurrentlyHovered()
     {
         return isHovering;
     }
 
-    public bool OnEndDrag()
-    {
-        STACK2D[] allStacks = FindObjectsByType<STACK2D>(FindObjectsSortMode.None);
-
-        foreach (STACK2D otherStack in allStacks)
-        {
-            if (otherStack != this && otherStack.isHovering && CanStackOn(otherStack))
-            {
-                StackOn(otherStack);
-                return true; // 堆疊成功
-            }
-        }
-        return false; // 沒有找到可以堆疊的對象
-    }
-
-    // --- 核心修改點 1 ---
-    private bool CanStackOn(STACK2D otherStack)
-    {
-        // 不再检查卡牌名称，只保留不能堆叠在自己子集上的逻辑
-        // 这将允许任何不同名的卡牌进行堆叠
-        return !otherStack.IsChildOf(this);
-    }
-
-    // --- 核心修改點 2 ---
-    // 将此方法从 private 改为 public，以便 CardsBehaviour 可以调用
+    /// <summary>
+    /// 將當前卡牌堆疊到一個新的父級上
+    /// </summary>
     public void StackOn(STACK2D newParentStack)
     {
-        if (parentStack != null)
+        // 1. 如果已經有父級，先從舊的父級中脫離
+        if (ParentStack != null)
         {
-            parentStack.childStacks.Remove(this);
+            ParentStack.ChildStacks.Remove(this);
+            ParentStack.UpdateStackVisuals(); // 更新舊父級的視覺
         }
 
+        // 2. 建立新的父子關係 (邏輯上和物理上)
         transform.SetParent(newParentStack.transform);
-        parentStack = newParentStack;
-        newParentStack.childStacks.Add(this);
+        ParentStack = newParentStack;
+        if (!newParentStack.ChildStacks.Contains(this))
+        {
+            newParentStack.ChildStacks.Add(this);
+        }
 
-        UpdateStackedPositionAndOrder();
-        newParentStack.ReorganizeStackOrders();
+        // 3. 從最頂層的卡牌開始，更新整個堆疊的視覺表現
+        GetRootStack().UpdateStackVisuals();
     }
 
-    public void UpdateStackedPositionAndOrder()
+    /// <summary>
+    /// 讓卡牌從當前的堆疊中脫離
+    /// </summary>
+    public void Unstack()
     {
-        if (parentStack != null)
-        {
-            Vector3 newPosition = parentStack.transform.position + new Vector3(0, -stackOffset, 0);
-            transform.position = newPosition;
+        if (ParentStack == null) return;
 
-            SpriteRenderer artworkRenderer = cardsBehaviour.GetArtworkRenderer();
-            SpriteRenderer parentArtworkRenderer = parentStack.cardsBehaviour.GetArtworkRenderer();
-            if (artworkRenderer != null && parentArtworkRenderer != null)
-            {
-                artworkRenderer.sortingOrder = parentArtworkRenderer.sortingOrder + 1;
-            }
+        STACK2D oldParent = ParentStack;
+
+        // 1. 清理邏輯關係
+        oldParent.ChildStacks.Remove(this);
+        ParentStack = null;
+
+        // 2. 脫離物理父級
+        transform.SetParent(transform.root);
+
+        // 3. 更新舊堆疊的視覺
+        oldParent.GetRootStack().UpdateStackVisuals();
+    }
+
+    /// <summary>
+    /// 核心更新函數：遞迴更新所有子卡牌的位置和渲染順序
+    /// </summary>
+    public void UpdateStackVisuals()
+    {
+        SpriteRenderer sr = cardsBehaviour.GetArtworkRenderer();
+        if (sr == null) return;
+
+        // 遍歷所有孩子，設定它們的位置和排序
+        for (int i = 0; i < ChildStacks.Count; i++)
+        {
+            STACK2D child = ChildStacks[i];
+            SpriteRenderer childSr = child.cardsBehaviour.GetArtworkRenderer();
+            if (childSr == null) continue;
+
+            // 位置：基於父級的位置，並疊加索引帶來的偏移
+            float yOffset = (i + 1) * -stackOffset;
+            child.transform.position = this.transform.position + new Vector3(0, yOffset, 0);
+
+            // 渲染順序：保證子級永遠在父級之上
+            childSr.sortingOrder = sr.sortingOrder + i + 1;
+
+            // 遞迴調用，更新孫子輩卡牌
+            child.UpdateStackVisuals();
         }
     }
 
-    private void ReorganizeStackOrders()
+    /// <summary>
+    /// 查找並返回這個堆疊最頂層的父級卡牌
+    /// </summary>
+    public STACK2D GetRootStack()
     {
-        STACK2D topParent = this;
-        while (topParent.parentStack != null)
+        STACK2D current = this;
+        while (current.ParentStack != null)
         {
-            topParent = topParent.parentStack;
+            current = current.ParentStack;
         }
-        topParent.ApplySortingOrderRecursively(topParent.cardsBehaviour.GetArtworkRenderer().sortingOrder);
+        return current;
     }
 
-    private void ApplySortingOrderRecursively(int baseOrder)
+    /// <summary>
+    /// 獲取整個堆疊的所有卡牌數據 (包含自己)
+    /// </summary>
+    public List<CardsBasicData> GetCardsDataInStack()
     {
-        cardsBehaviour.GetArtworkRenderer().sortingOrder = baseOrder;
-        hoverDragScript.SetNewOriginalOrder(baseOrder);
-
-        for (int i = 0; i < childStacks.Count; i++)
-        {
-            childStacks[i].ApplySortingOrderRecursively(baseOrder + i + 1);
-        }
+        List<CardsBasicData> allCards = new List<CardsBasicData>();
+        CollectCardsDataRecursively(this, allCards);
+        return allCards;
     }
 
-    private bool IsChildOf(STACK2D potentialParent)
+    private void CollectCardsDataRecursively(STACK2D stack, List<CardsBasicData> cardList)
     {
-        STACK2D current = this.parentStack;
-        while (current != null)
+        cardList.Add(stack.cardsBehaviour.GetCardData());
+        foreach (var child in stack.ChildStacks)
         {
-            if (current == potentialParent)
-            {
-                return true;
-            }
-            current = current.parentStack;
+            CollectCardsDataRecursively(child, cardList);
         }
-        return false;
     }
 }
