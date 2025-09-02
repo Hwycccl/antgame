@@ -16,9 +16,9 @@ GameObject:
   - component: {fileID: 8595483670545389670}
   - component: {fileID: 6222901649675589274}
   - component: {fileID: 4663922099977494633}
-  - component: {fileID: 1016085131759415032}
+  - component: {fileID: -2305095493772488020}
   m_Layer: 0
-  m_Name: Larva
+  m_Name: ToSoidier
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -173,7 +173,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 07bddb46ea19acf419ae512b3afe6c48, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _cardData: {fileID: 11400000, guid: 69cbc9885f0617345a22ba2c421e5611, type: 2}
+  _cardData: {fileID: 11400000, guid: fc98d20d9098a1b4e9fb99d408d64839, type: 2}
   artworkRenderer: {fileID: 7179836954307870412}
 --- !u!58 &4663922099977494633
 CircleCollider2D:
@@ -211,7 +211,7 @@ CircleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_Radius: 1.5
---- !u!61 &1016085131759415032
+--- !u!61 &-2305095493772488020
 BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

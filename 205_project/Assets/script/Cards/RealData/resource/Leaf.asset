@@ -15,7 +15,7 @@ MonoBehaviour:
   cardName: Leaf
   cardImage: {fileID: 0}
   description: "\u57FA\u7840\u8D44\u6E90\uFF0C\u53EF\u76F4\u63A5\u98DF\u7528\u6216\u52A0\u5DE5"
-  cardPrefab: {fileID: 7733143904966822346, guid: fc1bea56113301040b6a059ee9539b8f, type: 3}
+  cardPrefab: {fileID: 6240936587655790046, guid: 77ba4fd61ae00f344b2dc9d5884ed878, type: 3}
   cardType: 1
   isConsumable: 1
   isStackable: 1

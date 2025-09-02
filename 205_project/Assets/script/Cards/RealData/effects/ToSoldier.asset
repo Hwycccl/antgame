@@ -15,7 +15,7 @@ MonoBehaviour:
   cardName: ToSoldier
   cardImage: {fileID: 0}
   description: 
-  cardPrefab: {fileID: 7733143904966822346, guid: 7e76eafa64798c5418bdba0f1839de1d, type: 3}
+  cardPrefab: {fileID: 6240936587655790046, guid: 1985562d10168ef4aba14a326265c974, type: 3}
   cardType: 3
   isConsumable: 1
   isStackable: 0

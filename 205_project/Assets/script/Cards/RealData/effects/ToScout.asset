@@ -15,7 +15,7 @@ MonoBehaviour:
   cardName: ToScout
   cardImage: {fileID: 0}
   description: 
-  cardPrefab: {fileID: 7733143904966822346, guid: 800a188da37dc4943b0e61dfc3be4241, type: 3}
+  cardPrefab: {fileID: 6240936587655790046, guid: 0834e69a8ab7f074198fb4980c86b840, type: 3}
   cardType: 3
   isConsumable: 1
   isStackable: 0

@@ -15,7 +15,7 @@ MonoBehaviour:
   cardName: Scout
   cardImage: {fileID: 0}
   description: "\u89E6\u53D1\u63A2\u7D22\u4E8B\u4EF6"
-  cardPrefab: {fileID: 7733143904966822346, guid: fe70e7d44e6159643b5cd94c32692d6a, type: 3}
+  cardPrefab: {fileID: 6240936587655790046, guid: 02b33d03d443ea44caceb50494d2ff11, type: 3}
   cardType: 0
   isConsumable: 1
   isStackable: 1

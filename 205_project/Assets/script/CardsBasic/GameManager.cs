@@ -1,6 +1,4 @@
-//
-// GameManager.cs (修改後)
-//
+// 放置於: GameManager.cs
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,41 +6,45 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
 
-    [Header("起始卡牌")]
-    [Tooltip("遊戲開始時，直接在場上生成的卡牌")]
-    [SerializeField] private List<CardsBasicData> startingCards = new List<CardsBasicData>();
+    [Header("初始卡牌設置")]
+    [Tooltip("遊戲開始時，在場上生成的卡牌數據列表")]
+    [SerializeField] private List<CardsBasicData> startingCards;
 
-    [Header("初始卡牌生成設置")]
-    [SerializeField] private Vector3 startPosition = new Vector3(0, 0, 0);
-    [SerializeField] private float initialSpawnSpacing = 2.0f; // 每張初始卡牌之間的間距
+    [Header("生成位置")]
+    [SerializeField] private Vector3 spawnPosition = new Vector3(-5f, 0, 0);
+    [SerializeField] private float spawnSpacing = 2.0f; // 每張卡牌之間的間距
 
     private void Awake()
     {
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
-            return;
         }
-        Instance = this;
+        else
+        {
+            Instance = this;
+        }
     }
 
     private void Start()
     {
-        // 遊戲開始時，生成所有起始卡牌
-        for (int i = 0; i < startingCards.Count; i++)
-        {
-            var cardData = startingCards[i];
-            if (cardData != null)
-            {
-                // 計算每張初始卡牌的位置
-                Vector3 spawnPos = startPosition + new Vector3(i * initialSpawnSpacing, 0, 0);
+        SpawnInitialCards();
+    }
 
-                // 同時通知邏輯和UI
-                CardsManager.Instance.AddCardToLogic(cardData);
-                HandUI.Instance.AddCardToView(cardData, spawnPos);
-            }
+    private void SpawnInitialCards()
+    {
+        if (startingCards == null || startingCards.Count == 0)
+        {
+            Debug.LogWarning("沒有設置任何初始卡牌！");
+            return;
         }
 
-        Debug.Log("遊戲開始！生成了 " + startingCards.Count + " 張起始卡牌");
+        for (int i = 0; i < startingCards.Count; i++)
+        {
+            Vector3 position = spawnPosition + new Vector3(i * spawnSpacing, 0, 0);
+            CardSpawner.Instance.SpawnCard(startingCards[i], position);
+        }
+
+        Debug.Log($"成功生成 {startingCards.Count} 張初始卡牌。");
     }
 }
