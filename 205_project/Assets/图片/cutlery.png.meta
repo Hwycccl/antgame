@@ -1,10 +1,19 @@
 fileFormatVersion: 2
-guid: a2928eb734098214b9b16412fd9ed2f1
+guid: 7b849e85a34ce994d96f9a0563eeb7ba
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -2688028379341566559
-    second: ca89307c70aa67373007c67b0ed2b6e_0
+      213: 1947073235482758266
+    second: cutlery_0
+  - first:
+      213: -5083747311493128061
+    second: cutlery_1
+  - first:
+      213: -7368813160274846914
+    second: cutlery_2
+  - first:
+      213: 8171765484948663350
+    second: cutlery_3
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -37,7 +46,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 0
+    filterMode: 1
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -75,7 +84,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -100,13 +109,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: ca89307c70aa67373007c67b0ed2b6e_0
+      name: cutlery_0
       rect:
         serializedVersion: 2
         x: 0
-        y: 0
-        width: 1024
-        height: 1536
+        y: 222
+        width: 432
+        height: 278
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -114,8 +123,71 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 1ad4d274e6432bad0800000000000000
-      internalID: -2688028379341566559
+      spriteID: a7cce98aac4650b10800000000000000
+      internalID: 1947073235482758266
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cutlery_1
+      rect:
+        serializedVersion: 2
+        x: 26
+        y: 12
+        width: 486
+        height: 406
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 380ea9a41c6e279b0800000000000000
+      internalID: -5083747311493128061
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cutlery_2
+      rect:
+        serializedVersion: 2
+        x: 342
+        y: 356
+        width: 117
+        height: 117
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e3b189de877bcb990800000000000000
+      internalID: -7368813160274846914
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cutlery_3
+      rect:
+        serializedVersion: 2
+        x: 368
+        y: 331
+        width: 117
+        height: 117
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 63ca926a961f76170800000000000000
+      internalID: 8171765484948663350
       vertices: []
       indices: 
       edges: []
@@ -130,8 +202,7 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-    nameFileIdTable:
-      ca89307c70aa67373007c67b0ed2b6e_0: -2688028379341566559
+    nameFileIdTable: {}
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -1,10 +1,16 @@
 fileFormatVersion: 2
-guid: a2928eb734098214b9b16412fd9ed2f1
+guid: 6dadef6413f15404fb60716e0b33a77b
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -2688028379341566559
-    second: ca89307c70aa67373007c67b0ed2b6e_0
+      213: 6341528395159736041
+    second: volume-up_0
+  - first:
+      213: -4004278007750844094
+    second: volume-up_1
+  - first:
+      213: -1165016393468777295
+    second: volume-up_2
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -37,7 +43,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 0
+    filterMode: 1
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -75,7 +81,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -100,13 +106,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: ca89307c70aa67373007c67b0ed2b6e_0
+      name: volume-up_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 1024
-        height: 1536
+        x: 24
+        y: 75
+        width: 233
+        height: 362
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -114,8 +120,50 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 1ad4d274e6432bad0800000000000000
-      internalID: -2688028379341566559
+      spriteID: 9ee8c8ef972a10850800000000000000
+      internalID: 6341528395159736041
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: volume-up_1
+      rect:
+        serializedVersion: 2
+        x: 294
+        y: 138
+        width: 91
+        height: 236
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2412a161e52fd68c0800000000000000
+      internalID: -4004278007750844094
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: volume-up_2
+      rect:
+        serializedVersion: 2
+        x: 366
+        y: 66
+        width: 122
+        height: 380
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1bc69cd33c705dfe0800000000000000
+      internalID: -1165016393468777295
       vertices: []
       indices: 
       edges: []
@@ -130,8 +178,7 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-    nameFileIdTable:
-      ca89307c70aa67373007c67b0ed2b6e_0: -2688028379341566559
+    nameFileIdTable: {}
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
