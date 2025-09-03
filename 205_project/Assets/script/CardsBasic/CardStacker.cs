@@ -106,7 +106,14 @@ public class CardStacker : MonoBehaviour
         root.UpdateStackVisuals();
         root.card.Combiner.CheckForCombination();
     }
-
+    // 請將這個新函數添加到你的 CardStacker.cs 腳本中
+    public void ForceStackOn(CardStacker newParent)
+    {
+        // 這個函數允許系統（如此處的ScoutingZone）觸發堆疊，
+        // 而不是由玩家操作觸發。
+        Debug.Log($"[{gameObject.name}] is being force-stacked onto [{newParent.name}] by the system.");
+        StackOn(newParent);
+    }
     private CardStacker FindBestStackingTarget()
     {
         return nearbyTargets

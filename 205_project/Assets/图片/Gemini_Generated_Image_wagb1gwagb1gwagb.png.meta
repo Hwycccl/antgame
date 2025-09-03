@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: a2928eb734098214b9b16412fd9ed2f1
+guid: 92bdd133e6c111541b4a76fe126157ea
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -2688028379341566559
-    second: ca89307c70aa67373007c67b0ed2b6e_0
+      213: 4174960125571066389
+    second: Gemini_Generated_Image_wagb1gwagb1gwagb_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -37,7 +37,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 0
+    filterMode: 1
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -51,7 +51,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 900
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -75,7 +75,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: ca89307c70aa67373007c67b0ed2b6e_0
+      name: Gemini_Generated_Image_wagb1gwagb1gwagb_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 1024
-        height: 1536
+        width: 864
+        height: 1184
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -114,8 +114,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 1ad4d274e6432bad0800000000000000
-      internalID: -2688028379341566559
+      spriteID: 51a65144d1070f930800000000000000
+      internalID: 4174960125571066389
       vertices: []
       indices: 
       edges: []
@@ -131,7 +131,7 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      ca89307c70aa67373007c67b0ed2b6e_0: -2688028379341566559
+      Gemini_Generated_Image_wagb1gwagb1gwagb_0: 4174960125571066389
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
