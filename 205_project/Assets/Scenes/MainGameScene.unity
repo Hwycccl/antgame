@@ -857,7 +857,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: ad3e2a1f22286144d8b01e9a1e297587, type: 2}
   - {fileID: 11400000, guid: 4857d19b103223a4a88b0728743299f1, type: 2}
   - {fileID: 11400000, guid: 348373b9b117b324ba64f94540c4d3b7, type: 2}
-  spawnPosition: {x: 0, y: 0, z: 20}
+  spawnPosition: {x: -2, y: 7.7, z: 20}
   spawnSpacing: 3
 --- !u!4 &1015128036
 Transform:

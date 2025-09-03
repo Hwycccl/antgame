@@ -1,4 +1,4 @@
-// 放置於: CardDragger.cs (最終診斷版)
+// 放置於: CardDragger.cs (修正牌堆拖拽層級版)
 using UnityEngine;
 
 public class CardDragger : MonoBehaviour
@@ -8,9 +8,10 @@ public class CardDragger : MonoBehaviour
     private float zCoordinate;
 
     private Card card;
-    private SpriteRenderer artworkRenderer;
 
-    private int originalSortingOrder;
+    // 我們需要一個引用來記住被提升層級的根卡牌
+    private CardStacker rootStackerOfDraggedStack;
+    private int originalRootSortingOrder;
     [SerializeField] private int dragSortingOrder = 1000;
 
     void Awake()
@@ -21,39 +22,60 @@ public class CardDragger : MonoBehaviour
 
     void OnMouseDown()
     {
-        // OnMouseDown 已經確認是正常的，所以移除這裡的日誌
-        if (mainCamera == null) { Debug.LogError("Main Camera is not found!"); return; }
+        card.Stacker.OnBeginDrag();
+
         zCoordinate = mainCamera.WorldToScreenPoint(gameObject.transform.position).z;
         offset = gameObject.transform.position - GetMouseWorldPos();
-        artworkRenderer = card.GetArtworkRenderer();
-        if (artworkRenderer != null)
+
+        // --- 核心修改點 開始 ---
+
+        // 1. 找到被拖動牌堆的根卡牌 (Root)
+        rootStackerOfDraggedStack = card.Stacker.GetRoot();
+
+        // 2. 只獲取並修改根卡牌的 SpriteRenderer
+        var rootRenderer = rootStackerOfDraggedStack.GetComponent<Card>().GetArtworkRenderer();
+        if (rootRenderer != null)
         {
-            originalSortingOrder = artworkRenderer.sortingOrder;
-            artworkRenderer.sortingOrder = dragSortingOrder;
+            // 3. 記錄並提升根卡牌的渲染層級
+            originalRootSortingOrder = rootRenderer.sortingOrder;
+            rootRenderer.sortingOrder = dragSortingOrder;
+
+            // 4. 立刻更新整個牌堆的視覺效果
+            // 這會讓所有子卡牌的層級都根據新的根卡牌層級進行刷新
+            rootStackerOfDraggedStack.UpdateStackVisuals();
         }
-        card.Stacker.OnBeginDrag();
+
+        // --- 核心修改點 結束 ---
     }
 
     void OnMouseDrag()
     {
-        transform.position = GetMouseWorldPos() + offset;
+        // 當拖動時，我們移動的是整個根卡牌的 Transform
+        // 由於子卡牌都是它的子物件，所以會跟著一起移動
+        rootStackerOfDraggedStack.transform.position = GetMouseWorldPos() + offset;
     }
 
     void OnMouseUp()
     {
-        Debug.Log($"[{gameObject.name}] OnMouseUp: Step 1 - Mouse button released.");
-        if (artworkRenderer != null)
+        // --- 還原渲染層級的修改 ---
+        if (rootStackerOfDraggedStack != null)
         {
-            artworkRenderer.sortingOrder = originalSortingOrder;
+            var rootRenderer = rootStackerOfDraggedStack.GetComponent<Card>().GetArtworkRenderer();
+            if (rootRenderer != null)
+            {
+                // 1. 將根卡牌的層級還原
+                rootRenderer.sortingOrder = originalRootSortingOrder;
+
+                // 2. 再次更新整個牌堆的視覺，讓所有子卡牌的層級也還原
+                rootStackerOfDraggedStack.UpdateStackVisuals();
+            }
         }
 
-        Debug.Log($"[{gameObject.name}] OnMouseUp: Step 2 - Now calling OnEndDrag(). If the game freezes, the problem is inside CardStacker's logic.");
-
-        // 呼叫堆疊邏輯，卡死預計會發生在這裡
+        // --- 後續堆疊邏輯不變 ---
         card.Stacker.OnEndDrag();
 
-        // 如果你能看到下面這條日誌，代表沒有卡死
-        Debug.Log($"[{gameObject.name}] OnMouseUp: Step 3 - OnEndDrag() FINISHED SUCCESSFULLY. No freeze occurred.");
+        // 清理引用
+        rootStackerOfDraggedStack = null;
     }
 
     private Vector3 GetMouseWorldPos()
@@ -63,8 +85,9 @@ public class CardDragger : MonoBehaviour
         return mainCamera.ScreenToWorldPoint(mousePoint);
     }
 
+    // 這個函數現在由 UpdateStackVisuals 自動管理，但保留以防萬一
     public void SetOriginalSortingOrder(int newOrder)
     {
-        originalSortingOrder = newOrder;
+        // originalRootSortingOrder = newOrder;
     }
 }
