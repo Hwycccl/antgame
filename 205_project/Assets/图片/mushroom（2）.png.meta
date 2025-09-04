@@ -130,7 +130,8 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      "mushroom\uFF082\uFF09_0": 491484566185342199
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

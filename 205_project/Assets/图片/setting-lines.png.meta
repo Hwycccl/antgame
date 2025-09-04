@@ -250,7 +250,13 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      setting-lines_0: 5188643258162529614
+      setting-lines_1: 7253334324541391794
+      setting-lines_2: 7125129239459055293
+      setting-lines_3: -8166706045004451289
+      setting-lines_4: 1470623669596828845
+      setting-lines_5: 8506505056562249613
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

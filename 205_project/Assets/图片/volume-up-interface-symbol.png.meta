@@ -202,7 +202,11 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      volume-up-interface-symbol_0: -7937207353483521649
+      volume-up-interface-symbol_1: 6786718736069190020
+      volume-up-interface-symbol_2: -2742156061353292666
+      volume-up-interface-symbol_3: -4073587611440816370
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
