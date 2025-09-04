@@ -59,6 +59,21 @@ public class CardCombiner : MonoBehaviour
             {
                 for (int i = 0; i < result.quantity; i++)
                 {
+                    // --- ▼▼▼ 在这里插入新的人口检查逻辑 ▼▼▼ ---
+
+                    // 检查要生成的卡牌是不是蚂蚁
+                    if (result.resultCard.cardType == CardsBasicData.CardType.Ant)
+                    {
+                        // 如果是蚂蚁，就检查人口是否已满
+                        if (PopulationManager.Instance.IsPopulationFull())
+                        {
+                            Debug.LogWarning("合成失败：蚁穴已满，无法产生新的蚂蚁！");
+                            // 使用 'continue' 跳过本次生成，继续检查下一个产物
+                            continue;
+                        }
+                    }
+
+                    // 如果检查通过（或生成的不是蚂蚁），则正常生成卡牌
                     CardSpawner.Instance.SpawnCard(result.resultCard, rootPosition + spawnOffset);
                 }
             }

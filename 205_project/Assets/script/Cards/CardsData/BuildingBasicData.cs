@@ -6,7 +6,7 @@ public class BuildingBasicData : CardsBasicData
 {
     [Header("建筑属性")]
     public BuildingType buildingType;
-    public enum BuildingType { QueenChamber, Hatchery, Storage, Garden, Dump }
+    public enum BuildingType { QueenChamber, Hatchery, Storage, Garden, Dump ,AntNet}
 
     public int maxHp = 10;              // 建筑耐久
     public int productionPerTurn = 0;   // 每回合产出

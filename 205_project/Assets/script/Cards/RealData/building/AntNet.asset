@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38a64ca5337abd148a36d3b8adf6ae60, type: 3}
+  m_Name: AntNet
+  m_EditorClassIdentifier: 
+  cardName: "\u65B0\u5361\u724C"
+  cardImage: {fileID: 0}
+  description: "\u8681\u7A74"
+  cardPrefab: {fileID: 6240936587655790046, guid: 64a9c0d459823cb4db27cfefd95edc24, type: 3}
+  cardType: 2
+  isConsumable: 0
+  isStackable: 1
+  stackLimit: 10
+  leafCost: 0
+  fungusCost: 0
+  fertilizer: 0
+  health: 0
+  attack: 0
+  buildingType: 5
+  maxHp: 10
+  productionPerTurn: 0
+  capacity: 10
+  populationCapacity: 10
