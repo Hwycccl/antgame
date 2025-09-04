@@ -202,7 +202,11 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      cutlery_0: 1947073235482758266
+      cutlery_1: -5083747311493128061
+      cutlery_2: -7368813160274846914
+      cutlery_3: 8171765484948663350
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
