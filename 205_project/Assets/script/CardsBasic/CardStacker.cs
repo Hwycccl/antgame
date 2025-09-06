@@ -15,13 +15,10 @@ public class CardStacker : MonoBehaviour
 
     public CardStacker Parent { get; private set; }
     private readonly List<CardStacker> children = new List<CardStacker>();
-
     private readonly List<CardStacker> nearbyTargets = new List<CardStacker>();
-
     private Card card;
     private CircleCollider2D triggerCollider;
     private Rigidbody2D rb;
-
     private const int SAFETY_LOOP_LIMIT = 100;
 
     private void Awake()
@@ -36,7 +33,6 @@ public class CardStacker : MonoBehaviour
         if (triggerCollider == null) triggerCollider = gameObject.AddComponent<CircleCollider2D>();
         triggerCollider.isTrigger = true;
         triggerCollider.radius = detectionRadius;
-
         rb = GetComponent<Rigidbody2D>();
         if (rb == null) rb = gameObject.AddComponent<Rigidbody2D>();
         rb.isKinematic = true;
@@ -63,10 +59,26 @@ public class CardStacker : MonoBehaviour
 
     public void OnBeginDrag()
     {
+        // 只有当这张卡有父级时（即它在一个堆叠中而不是根卡），才执行脱离逻辑
         if (Parent != null)
         {
+            // 获取在脱离之前，整个牌堆的根卡牌
             var oldRoot = GetRoot();
+
+            // 在脱离之前，先尝试取消该牌堆的合成
+            if (oldRoot != null)
+            {
+                var combiner = oldRoot.GetComponent<Card>().Combiner;
+                if (combiner != null)
+                {
+                    combiner.CancelCombination();
+                }
+            }
+
+            // 从父级脱离
             DetachFromParent();
+
+            // 更新旧牌堆的视觉效果
             oldRoot.UpdateStackVisuals();
         }
     }
@@ -74,7 +86,6 @@ public class CardStacker : MonoBehaviour
     public void OnEndDrag()
     {
         CardStacker potentialTarget = FindBestStackingTarget();
-
         if (potentialTarget != null)
         {
             CardStacker finalTarget = potentialTarget.GetTopmostCardInStack();
@@ -127,7 +138,6 @@ public class CardStacker : MonoBehaviour
 
         int childIndex = Parent.children.IndexOf(this);
         Vector3 targetPosition = Parent.transform.position + new Vector3(0, -(childIndex + 1) * yOffset, 0);
-
         Vector3 startPosition = transform.position;
         float timeElapsed = 0f;
 
@@ -149,9 +159,6 @@ public class CardStacker : MonoBehaviour
         var myRenderer = card.GetArtworkRenderer();
         if (myRenderer == null) return;
 
-        // 修正: 移除对 SetOriginalSortingOrder 的调用
-        // card.Dragger.SetOriginalSortingOrder(myRenderer.sortingOrder);
-
         for (int i = 0; i < children.Count; i++)
         {
             CardStacker child = children[i];
@@ -163,7 +170,6 @@ public class CardStacker : MonoBehaviour
             }
 
             child.transform.position = transform.position + new Vector3(0, -(i + 1) * yOffset, 0);
-
             var childRenderer = child.card.GetArtworkRenderer();
             if (childRenderer != null)
             {
@@ -173,7 +179,6 @@ public class CardStacker : MonoBehaviour
         }
     }
 
-    // --- 輔助函數 ---
     private void AddChild(CardStacker child) { if (!children.Contains(child)) children.Add(child); }
     private void RemoveChild(CardStacker child) { children.Remove(child); }
 

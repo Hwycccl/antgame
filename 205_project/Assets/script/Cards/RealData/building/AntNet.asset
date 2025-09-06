@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38a64ca5337abd148a36d3b8adf6ae60, type: 3}
   m_Name: AntNet
   m_EditorClassIdentifier: 
-  cardName: "\u65B0\u5361\u724C"
+  cardName: AntNet
   cardImage: {fileID: 0}
   description: Ant holes determine the upper limit of ants.
   cardPrefab: {fileID: 6240936587655790046, guid: 64a9c0d459823cb4db27cfefd95edc24, type: 3}

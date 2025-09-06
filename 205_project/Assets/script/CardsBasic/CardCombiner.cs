@@ -9,39 +9,31 @@ public class CardCombiner : MonoBehaviour
     [Header("組合數據庫")]
     [Tooltip("包含所有合成配方的 ScriptableObject")]
     [SerializeField] private CardsCombination combinationDatabase;
-    [SerializeField] private Vector3 spawnOffset = new Vector3(-2f, 0, 0); // 在左邊生成新卡
+    [SerializeField] private Vector3 spawnOffset = new Vector3(-2f, 0, 0);
 
     private Card card;
     private Coroutine combinationCoroutine;
 
-    // --- 新增变量 ---
     public bool isCombining { get; private set; } = false;
     private float combinationStartTime;
     private CardsCombinationRule currentCombinationRule;
-
 
     private void Awake()
     {
         card = GetComponent<Card>();
     }
 
-    // 由 CardStacker 在堆疊完成後呼叫
     public void CheckForCombination()
     {
-        // 只有堆疊的根卡牌才負責檢查和執行合成
         if (card.Stacker.Parent != null) return;
-
-        // 如果正在合成中，則不進行新的檢測
         if (combinationCoroutine != null) return;
 
         List<Card> stackCards = card.Stacker.GetCardsInStack();
         List<CardsBasicData> inputData = stackCards.Select(c => c.CardData).ToList();
-
         CardsCombinationRule matchedRule = combinationDatabase.GetCombination(inputData);
 
         if (matchedRule != null)
         {
-            // 找到了配方，開始計時合成
             combinationCoroutine = StartCoroutine(CombinationProcess(matchedRule, stackCards));
         }
     }
@@ -49,56 +41,39 @@ public class CardCombiner : MonoBehaviour
     private IEnumerator CombinationProcess(CardsCombinationRule rule, List<Card> ingredientCards)
     {
         Debug.Log($"找到組合: {rule.combinationName}，開始計時 {rule.time} 秒。");
-
-        // --- 新增逻辑 ---
         isCombining = true;
         combinationStartTime = Time.time;
         currentCombinationRule = rule;
-        // --- 新增逻辑结束 ---
-
-
-        // 可以在這裡創建一個進度條UI
-        // ...
 
         yield return new WaitForSeconds(rule.time);
 
         Debug.Log("合成完成！");
 
-        // 1. 生成產物
         Vector3 rootPosition = transform.position;
         foreach (var result in rule.results)
         {
-            if (Random.value <= result.probability) // 考慮機率
+            if (Random.value <= result.probability)
             {
                 for (int i = 0; i < result.quantity; i++)
                 {
-                    // --- ▼▼▼ 在这里插入新的人口检查逻辑 ▼▼▼ ---
-
-                    // 检查要生成的卡牌是不是蚂蚁
                     if (result.resultCard.cardType == CardsBasicData.CardType.Ant)
                     {
-                        // 如果是蚂蚁，就检查人口是否已满
-                        if (PopulationManager.Instance.IsPopulationFull())
+                        if (PopulationManager.Instance != null && PopulationManager.Instance.IsPopulationFull())
                         {
                             Debug.LogWarning("合成失败：蚁穴已满，无法产生新的蚂蚁！");
-                            // 使用 'continue' 跳过本次生成，继续检查下一个产物
                             continue;
                         }
                     }
-
-                    // 如果检查通过（或生成的不是蚂蚁），则正常生成卡牌
                     CardSpawner.Instance.SpawnCard(result.resultCard, rootPosition + spawnOffset);
                 }
             }
         }
 
-        // 2. 銷毀原料 (從子級開始銷毀，避免出錯)
         List<Card> cardsToDestroy = new List<Card>();
         foreach (var requiredGroup in rule.requiredCards)
         {
             if (requiredGroup.destroyOnCombine)
             {
-                // 找出需要被銷毀的卡牌實例
                 var matchingCards = ingredientCards
                     .Where(c => c.CardData == requiredGroup.specificCard || c.CardData.cardType == requiredGroup.cardType)
                     .Take(requiredGroup.requiredCount);
@@ -106,21 +81,16 @@ public class CardCombiner : MonoBehaviour
             }
         }
 
-        // 執行銷毀
         foreach (var cardToDestroy in cardsToDestroy.Distinct().Reverse())
         {
             if (cardToDestroy != null) Destroy(cardToDestroy.gameObject);
         }
 
         combinationCoroutine = null;
-
-        // --- 新增逻辑 ---
         isCombining = false;
         currentCombinationRule = null;
-        // --- 新增逻辑结束 ---
     }
 
-    // --- 新增方法 ---
     public float GetRemainingTime()
     {
         if (isCombining && currentCombinationRule != null)
@@ -129,5 +99,25 @@ public class CardCombiner : MonoBehaviour
             return Mathf.Max(0, currentCombinationRule.time - elapsedTime);
         }
         return 0;
+    }
+
+    /// <summary>
+    /// 从外部停止当前的合成过程。
+    /// </summary>
+    public void CancelCombination()
+    {
+        // 检查当前是否有正在进行的合成协程
+        if (combinationCoroutine != null)
+        {
+            Debug.Log($"合成过程 '{currentCombinationRule.combinationName}' 已被取消。");
+
+            // 停止协程
+            StopCoroutine(combinationCoroutine);
+
+            // 重置所有状态变量，回到未合成状态
+            combinationCoroutine = null;
+            isCombining = false;
+            currentCombinationRule = null;
+        }
     }
 }
