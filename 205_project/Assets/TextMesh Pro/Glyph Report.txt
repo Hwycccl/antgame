@@ -1,0 +1,16 @@
+Font:   Style: 
+Point Size: 0   Padding: -1073741824   SP/PD Ratio: -Infinity
+
+Characters included: 3501/3504
+Missing characters: 3
+Excluded characters: 0
+
+Characters missing from font file:
+----------------------------------------
+ID: 9	Hex: 9	Char [	]
+ID: 13	Hex: D	Char []
+ID: 10	Hex: A	Char [
+]
+
+Characters excluded from packing:
+----------------------------------------
