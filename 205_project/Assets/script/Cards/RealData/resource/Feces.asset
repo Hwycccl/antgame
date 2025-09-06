@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cardName: Reces
   cardImage: {fileID: 0}
-  description: "\u80A5\u6599\uFF0C\u52A0\u901F\u771F\u83CC\u751F\u957F"
+  description: Fertilizer, used for upgrading the mushroom garden.
   cardPrefab: {fileID: 6240936587655790046, guid: e95e666f9700cdf4d9b43a12beae46ec, type: 3}
   cardType: 1
   isConsumable: 1

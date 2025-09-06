@@ -73,21 +73,17 @@ public class CardStacker : MonoBehaviour
 
     public void OnEndDrag()
     {
-        // --- 核心修改點 開始 ---
         CardStacker potentialTarget = FindBestStackingTarget();
 
         if (potentialTarget != null)
         {
-            // 找到了最近的牌後，再找到它所在牌堆的最頂端
             CardStacker finalTarget = potentialTarget.GetTopmostCardInStack();
             StackOn(finalTarget);
         }
         else
         {
-            // 如果沒有目標，也要確保自己的堆疊是正確的
             UpdateStackVisuals();
         }
-        // --- 核心修改點 結束 ---
     }
 
     private void DetachFromParent()
@@ -119,7 +115,6 @@ public class CardStacker : MonoBehaviour
 
     private CardStacker FindBestStackingTarget()
     {
-        // 這個函數現在只負責找到物理上最近的有效目標
         return nearbyTargets
             .Where(t => t != null && t.gameObject.activeInHierarchy && !IsDescendant(t))
             .OrderBy(t => Vector2.Distance(transform.position, t.transform.position))
@@ -154,7 +149,8 @@ public class CardStacker : MonoBehaviour
         var myRenderer = card.GetArtworkRenderer();
         if (myRenderer == null) return;
 
-        card.Dragger.SetOriginalSortingOrder(myRenderer.sortingOrder);
+        // 修正: 移除对 SetOriginalSortingOrder 的调用
+        // card.Dragger.SetOriginalSortingOrder(myRenderer.sortingOrder);
 
         for (int i = 0; i < children.Count; i++)
         {
@@ -162,7 +158,7 @@ public class CardStacker : MonoBehaviour
             if (child == null)
             {
                 children.RemoveAt(i);
-                i--; // 因為移除了元素，索引需要回退
+                i--;
                 continue;
             }
 
@@ -193,12 +189,10 @@ public class CardStacker : MonoBehaviour
         return current;
     }
 
-    // --- 新增的核心輔助函數 ---
     public CardStacker GetTopmostCardInStack()
     {
         CardStacker current = this;
         int count = 0;
-        // 不斷向下尋找最後一個孩子，直到找到一個沒有孩子的牌
         while (current.children.Count > 0)
         {
             current = current.children[current.children.Count - 1];

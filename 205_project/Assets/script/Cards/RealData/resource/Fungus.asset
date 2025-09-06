@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cardName: Fungus
   cardImage: {fileID: 0}
-  description: "\u4E3B\u8981\u98DF\u7269\u6765\u6E90\uFF0C\u53EF\u5582\u517B\u5E7C\u866B"
+  description: Main sources of food
   cardPrefab: {fileID: 6240936587655790046, guid: 5f7251327f355f34faf3c2139a9a7589, type: 3}
   cardType: 1
   isConsumable: 1

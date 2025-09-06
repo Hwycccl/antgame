@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cardName: Hatchery
   cardImage: {fileID: 0}
-  description: "\u5E7C\u866B\u6210\u957F"
+  description: Larval growth
   cardPrefab: {fileID: 6240936587655790046, guid: 87120cbc24ee0384e8f396b8d9aafdd9, type: 3}
   cardType: 2
   isConsumable: 0

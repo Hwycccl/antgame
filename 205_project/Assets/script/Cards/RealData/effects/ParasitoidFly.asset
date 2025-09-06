@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cardName: ParasitoidFly
   cardImage: {fileID: 0}
-  description: "\u653B\u51FB\u5DE5\u8681\uFF0C\u58EB\u5175\u8681\u53EF\u6D88\u706D"
+  description: Attack the worker ants and the queen ant; soldier ants can eliminate
+    them.
   cardPrefab: {fileID: 6240936587655790046, guid: 715bc7287cd189f46aee072f2b084870, type: 3}
   cardType: 3
   isConsumable: 1

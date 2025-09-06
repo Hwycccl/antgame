@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cardName: Contamination
   cardImage: {fileID: 0}
-  description: "\u6709\u5BB3\u771F\u83CC\uFF0C\u4F1A\u6C61\u67D3\u83CC\u56ED"
+  description: Harmful fungi can contaminate the mushroom garden.
   cardPrefab: {fileID: 6240936587655790046, guid: ee50718372aaa1d43a0a60b108dcfc2a, type: 3}
   cardType: 0
   isConsumable: 0

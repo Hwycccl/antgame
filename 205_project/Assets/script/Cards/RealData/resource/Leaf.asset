@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cardName: Leaf
   cardImage: {fileID: 0}
-  description: "\u57FA\u7840\u8D44\u6E90\uFF0C\u53EF\u76F4\u63A5\u98DF\u7528\u6216\u52A0\u5DE5"
+  description: Basic resources that need processing
   cardPrefab: {fileID: 6240936587655790046, guid: 77ba4fd61ae00f344b2dc9d5884ed878, type: 3}
   cardType: 1
   isConsumable: 1

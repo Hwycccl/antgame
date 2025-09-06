@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cardName: Larva
   cardImage: {fileID: 0}
-  description: "\u7531\u8681\u540E\u4EA7\u51FA"
+  description: Produced by the queen ant, it can grow into different ants.
   cardPrefab: {fileID: 6240936587655790046, guid: 7edcbdec2237d8945b31025ab55ce4e4, type: 3}
   cardType: 0
   isConsumable: 1

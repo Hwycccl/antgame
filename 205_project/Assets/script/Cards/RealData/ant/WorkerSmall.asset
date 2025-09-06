@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cardName: WorkerSmall
   cardImage: {fileID: 0}
-  description: "\u5B88\u62A4\u642C\u8FD0\uFF0C\u652F\u63F4"
+  description: Guarding and transporting, support
   cardPrefab: {fileID: 6240936587655790046, guid: abd904830adcf894eb13089cce951482, type: 3}
   cardType: 0
   isConsumable: 1

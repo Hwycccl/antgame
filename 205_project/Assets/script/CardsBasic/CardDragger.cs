@@ -1,15 +1,19 @@
-// 放置於: CardDragger.cs (修正牌堆拖拽層級版)
+// 放置於: CardDragger.cs (已修正错误)
 using UnityEngine;
+using UnityEngine.EventSystems;
+using System.Linq;
+using System.Text;
 
-public class CardDragger : MonoBehaviour
+// 使用新的事件接口来统一处理所有输入
+public class CardDragger : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler
 {
     private Camera mainCamera;
     private Vector3 offset;
     private float zCoordinate;
 
     private Card card;
+    private CardStacker stacker;
 
-    // 我們需要一個引用來記住被提升層級的根卡牌
     private CardStacker rootStackerOfDraggedStack;
     private int originalRootSortingOrder;
     [SerializeField] private int dragSortingOrder = 1000;
@@ -18,64 +22,67 @@ public class CardDragger : MonoBehaviour
     {
         card = GetComponent<Card>();
         mainCamera = Camera.main;
+        stacker = GetComponent<CardStacker>();
     }
 
-    void OnMouseDown()
+    // --- 新增功能：点击时显示描述 ---
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        UpdateDescription();
+    }
+
+    // --- 这里是原 OnMouseDown() 的逻辑 ---
+    public void OnBeginDrag(PointerEventData eventData)
     {
         card.Stacker.OnBeginDrag();
 
         zCoordinate = mainCamera.WorldToScreenPoint(gameObject.transform.position).z;
         offset = gameObject.transform.position - GetMouseWorldPos();
 
-        // --- 核心修改點 開始 ---
-
-        // 1. 找到被拖動牌堆的根卡牌 (Root)
         rootStackerOfDraggedStack = card.Stacker.GetRoot();
 
-        // 2. 只獲取並修改根卡牌的 SpriteRenderer
         var rootRenderer = rootStackerOfDraggedStack.GetComponent<Card>().GetArtworkRenderer();
         if (rootRenderer != null)
         {
-            // 3. 記錄並提升根卡牌的渲染層級
             originalRootSortingOrder = rootRenderer.sortingOrder;
             rootRenderer.sortingOrder = dragSortingOrder;
-
-            // 4. 立刻更新整個牌堆的視覺效果
-            // 這會讓所有子卡牌的層級都根據新的根卡牌層級進行刷新
             rootStackerOfDraggedStack.UpdateStackVisuals();
         }
 
-        // --- 核心修改點 結束 ---
+        // 开始拖动时，也更新一次描述
+        UpdateDescription();
     }
 
-    void OnMouseDrag()
+    // --- 这里是原 OnMouseDrag() 的逻辑 ---
+    public void OnDrag(PointerEventData eventData)
     {
-        // 當拖動時，我們移動的是整個根卡牌的 Transform
-        // 由於子卡牌都是它的子物件，所以會跟著一起移動
-        rootStackerOfDraggedStack.transform.position = GetMouseWorldPos() + offset;
+        if (rootStackerOfDraggedStack != null)
+        {
+            rootStackerOfDraggedStack.transform.position = GetMouseWorldPos() + offset;
+        }
     }
 
-    void OnMouseUp()
+    // --- 这里是原 OnMouseUp() 的逻辑 ---
+    public void OnEndDrag(PointerEventData eventData)
     {
-        // --- 還原渲染層級的修改 ---
         if (rootStackerOfDraggedStack != null)
         {
             var rootRenderer = rootStackerOfDraggedStack.GetComponent<Card>().GetArtworkRenderer();
             if (rootRenderer != null)
             {
-                // 1. 將根卡牌的層級還原
                 rootRenderer.sortingOrder = originalRootSortingOrder;
-
-                // 2. 再次更新整個牌堆的視覺，讓所有子卡牌的層級也還原
                 rootStackerOfDraggedStack.UpdateStackVisuals();
             }
         }
 
-        // --- 後續堆疊邏輯不變 ---
         card.Stacker.OnEndDrag();
-
-        // 清理引用
         rootStackerOfDraggedStack = null;
+
+        // --- 新增功能：结束拖动时隐藏描述框 ---
+        if (DescriptionManager.Instance != null)
+        {
+            DescriptionManager.Instance.HideDescription();
+        }
     }
 
     private Vector3 GetMouseWorldPos()
@@ -85,9 +92,40 @@ public class CardDragger : MonoBehaviour
         return mainCamera.ScreenToWorldPoint(mousePoint);
     }
 
-    // 這個函數現在由 UpdateStackVisuals 自動管理，但保留以防萬一
-    public void SetOriginalSortingOrder(int newOrder)
+    // --- 新增功能：更新描述文本框 ---
+    private void UpdateDescription()
     {
-        // originalRootSortingOrder = newOrder;
+        if (DescriptionManager.Instance == null) return;
+
+        CardStacker root = stacker.GetRoot();
+        // 判断条件改为检查牌堆中的卡牌总数
+        if (root.GetCardsInStack().Count > 1)
+        {
+            CardCombiner combiner = root.GetComponent<CardCombiner>();
+
+            if (combiner != null && combiner.isCombining)
+            {
+                float remainingTime = combiner.GetRemainingTime();
+                DescriptionManager.Instance.ShowDescription("In synthesis.....", $"remaining {remainingTime:F1} mins");
+            }
+            else
+            {
+                var cardCounts = root.GetCardsInStack()
+                    .GroupBy(c => c.CardData.cardName)
+                    .ToDictionary(g => g.Key, g => g.Count());
+
+                StringBuilder description = new StringBuilder();
+                foreach (var entry in cardCounts)
+                {
+                    description.AppendLine($"{entry.Key} ×{entry.Value}");
+                }
+                DescriptionManager.Instance.ShowDescription("Deck of cards", description.ToString());
+            }
+        }
+        else
+        {
+            // 单张卡牌
+            DescriptionManager.Instance.ShowDescription(card.CardData.cardType.ToString(), card.CardData.description);
+        }
     }
 }

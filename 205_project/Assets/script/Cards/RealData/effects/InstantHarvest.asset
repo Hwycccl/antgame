@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cardName: InstantHarvest
   cardImage: {fileID: 0}
-  description: "\u7ACB\u5373\u83B7\u5F97 3 \u5F20\u53F6\u7247"
+  description: Immediately get 3 leaves.
   cardPrefab: {fileID: 6240936587655790046, guid: 5a5568120254d934bb9729368862a91b, type: 3}
   cardType: 3
   isConsumable: 1

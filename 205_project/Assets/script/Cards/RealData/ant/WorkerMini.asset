@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cardName: WorkerMin
   cardImage: {fileID: 0}
-  description: "\u62A4\u7406\u83CC\u56ED\u3001\u5375\u5E7C"
+  description: Nursing bacteria garden, young larvae
   cardPrefab: {fileID: 6240936587655790046, guid: 2b9a8c6713b167a4e8daa74074b2d420, type: 3}
   cardType: 0
   isConsumable: 1

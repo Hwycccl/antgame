@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cardName: Garden
   cardImage: {fileID: 0}
-  description: "\u57F9\u517B\u771F\u83CC\u7684\u5730\u65B9"
+  description: The place where fungi are cultivated
   cardPrefab: {fileID: 6240936587655790046, guid: 69846669ed05ede4f90d75c6108b9e8a, type: 3}
   cardType: 2
   isConsumable: 0

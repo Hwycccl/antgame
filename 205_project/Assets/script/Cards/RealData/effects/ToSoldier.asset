@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cardName: ToSoldier
   cardImage: {fileID: 0}
-  description: 
+  description: To grow the larvae into soldier ants.
   cardPrefab: {fileID: 6240936587655790046, guid: 1985562d10168ef4aba14a326265c974, type: 3}
   cardType: 3
   isConsumable: 1

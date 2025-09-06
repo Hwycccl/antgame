@@ -14,6 +14,12 @@ public class CardCombiner : MonoBehaviour
     private Card card;
     private Coroutine combinationCoroutine;
 
+    // --- 新增变量 ---
+    public bool isCombining { get; private set; } = false;
+    private float combinationStartTime;
+    private CardsCombinationRule currentCombinationRule;
+
+
     private void Awake()
     {
         card = GetComponent<Card>();
@@ -43,6 +49,13 @@ public class CardCombiner : MonoBehaviour
     private IEnumerator CombinationProcess(CardsCombinationRule rule, List<Card> ingredientCards)
     {
         Debug.Log($"找到組合: {rule.combinationName}，開始計時 {rule.time} 秒。");
+
+        // --- 新增逻辑 ---
+        isCombining = true;
+        combinationStartTime = Time.time;
+        currentCombinationRule = rule;
+        // --- 新增逻辑结束 ---
+
 
         // 可以在這裡創建一個進度條UI
         // ...
@@ -96,9 +109,25 @@ public class CardCombiner : MonoBehaviour
         // 執行銷毀
         foreach (var cardToDestroy in cardsToDestroy.Distinct().Reverse())
         {
-            Destroy(cardToDestroy.gameObject);
+            if (cardToDestroy != null) Destroy(cardToDestroy.gameObject);
         }
 
         combinationCoroutine = null;
+
+        // --- 新增逻辑 ---
+        isCombining = false;
+        currentCombinationRule = null;
+        // --- 新增逻辑结束 ---
+    }
+
+    // --- 新增方法 ---
+    public float GetRemainingTime()
+    {
+        if (isCombining && currentCombinationRule != null)
+        {
+            float elapsedTime = Time.time - combinationStartTime;
+            return Mathf.Max(0, currentCombinationRule.time - elapsedTime);
+        }
+        return 0;
     }
 }

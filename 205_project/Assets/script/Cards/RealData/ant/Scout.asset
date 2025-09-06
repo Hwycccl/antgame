@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cardName: Scout
   cardImage: {fileID: 0}
-  description: "\u89E6\u53D1\u63A2\u7D22\u4E8B\u4EF6"
+  description: Trigger exploration event
   cardPrefab: {fileID: 6240936587655790046, guid: 02b33d03d443ea44caceb50494d2ff11, type: 3}
   cardType: 0
   isConsumable: 1

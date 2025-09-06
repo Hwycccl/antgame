@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cardName: "\u65B0\u5361\u724C"
   cardImage: {fileID: 0}
-  description: "\u8681\u7A74"
+  description: Ant holes determine the upper limit of ants.
   cardPrefab: {fileID: 6240936587655790046, guid: 64a9c0d459823cb4db27cfefd95edc24, type: 3}
   cardType: 2
   isConsumable: 0
