@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8019dd374f32c7944b22773a1018e871, type: 3}
   m_Name: WorkerMini
   m_EditorClassIdentifier: 
-  cardName: WorkerMin
+  cardName: WorkerMini
   cardImage: {fileID: 0}
   description: Nursing bacteria garden, young larvae
   cardPrefab: {fileID: 6240936587655790046, guid: 2b9a8c6713b167a4e8daa74074b2d420, type: 3}

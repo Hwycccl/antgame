@@ -10,7 +10,7 @@ public class CardsDataBase : MonoBehaviour
     public static CardsDataBase Instance { get; private set; }
 
     [Header("卡牌资源列表")]
-    [SerializeField] private List<CardsBasicData> allCards = new List<CardsBasicData>();
+    [SerializeField] public List<CardsBasicData> allCards = new List<CardsBasicData>();
 
     private Dictionary<string, CardsBasicData> cardDictionary = new Dictionary<string, CardsBasicData>();
 

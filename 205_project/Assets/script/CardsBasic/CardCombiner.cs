@@ -65,6 +65,7 @@ public class CardCombiner : MonoBehaviour
                         }
                     }
                     CardSpawner.Instance.SpawnCard(result.resultCard, rootPosition + spawnOffset);
+                    UnlockedCardsManager.UnlockCard(result.resultCard.cardName);
                 }
             }
         }

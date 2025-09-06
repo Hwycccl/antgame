@@ -40,6 +40,7 @@ public class CardSpawner : MonoBehaviour
         if (cardController != null)
         {
             cardController.Initialize(cardData);
+            UnlockedCardsManager.UnlockCard(cardData.cardName);
             return cardController;
         }
         else
