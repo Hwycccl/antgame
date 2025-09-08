@@ -82,15 +82,21 @@ public class ScoutingZone : MonoBehaviour
         }
     }
 
-    // --- 核心卡牌检测逻辑 (必须保留) ---
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.TryGetComponent<Card>(out Card card) && card.CardData == scoutAntCardData)
+        if (other.TryGetComponent<Card>(out Card enteredCard) && enteredCard.CardData == scoutAntCardData)
         {
-            if (!scoutsInZone.Contains(card))
+            if (!scoutsInZone.Contains(enteredCard))
             {
-                scoutsInZone.Add(card);
-                Debug.Log($"一隻偵察蟻 [{card.name}] 進入了區域。當前數量: {scoutsInZone.Count}");
+                scoutsInZone.Add(enteredCard);
+                Debug.Log($"一隻偵察蟻 [{enteredCard.name}] 進入了區域。當前數量: {scoutsInZone.Count}");
+
+                // --- 核心修改：命令进入的侦察蚁保持提升状态 ---
+                if (enteredCard.TryGetComponent<ElevationController>(out var elevation))
+                {
+                    elevation.SetElevated(true);
+                }
+
                 if (scoutsInZone.Count == 1) ResetTimer();
             }
         }
@@ -98,11 +104,18 @@ public class ScoutingZone : MonoBehaviour
 
     private void OnTriggerExit2D(Collider2D other)
     {
-        if (other.TryGetComponent<Card>(out Card card) && card.CardData == scoutAntCardData)
+        if (other.TryGetComponent<Card>(out Card exitedCard) && exitedCard.CardData == scoutAntCardData)
         {
-            if (scoutsInZone.Remove(card))
+            if (scoutsInZone.Remove(exitedCard))
             {
-                Debug.Log($"一隻偵察蟻 [{card.name}] 離開了區域。當前數量: {scoutsInZone.Count}");
+                Debug.Log($"一隻偵察蟻 [{exitedCard.name}] 離開了區域。當前數量: {scoutsInZone.Count}");
+
+                // --- 核心修改：命令离开的侦察蚁恢复原始状态 ---
+                if (exitedCard.TryGetComponent<ElevationController>(out var elevation))
+                {
+                    elevation.SetElevated(false);
+                }
+
                 if (scoutsInZone.Count == 0) currentScoutTimer = 0;
             }
         }
