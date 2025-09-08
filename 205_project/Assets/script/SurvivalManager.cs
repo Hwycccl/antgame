@@ -72,7 +72,6 @@ public class SurvivalManager : MonoBehaviour
 
     private void Update()
     {
-        Debug.Log("SurvivalManager Update is running...");
         if (isGameOver || GlobalTimeManager.Instance.IsPaused)
         {
             return;

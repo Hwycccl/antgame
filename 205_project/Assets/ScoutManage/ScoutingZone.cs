@@ -1,48 +1,74 @@
-// 放置於: ScoutingZone.cs (請完整複製此檔案的全部內容)
+// 放置於: ScoutingZone.cs (最终完整版)
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+// 这个数据结构保持不变
+[System.Serializable]
+public class ScoutAreaData
+{
+    public string areaName;
+    public Sprite areaImage;
+    public LootTable lootTable;
+}
+
 public class ScoutingZone : MonoBehaviour
 {
-    // --- 變數定義區 (錯誤的根源就在於遺漏了這一段) ---
     [Header("偵察設置")]
-    [Tooltip("基礎偵察間隔（秒），偵察蟻越多間隔越短")]
     [SerializeField] private float baseScoutInterval = 20f;
-    [Tooltip("每隻偵察蟻能減少多少秒的間隔")]
     [SerializeField] private float intervalReductionPerScout = 1.5f;
-    [Tooltip("偵察間隔最短不能低於多少秒")]
     [SerializeField] private float minScoutInterval = 3f;
 
     [Header("事件機率")]
     [Range(0f, 1f)]
-    [Tooltip("觸發負面事件（如寄生蠅）的基礎機率")]
     [SerializeField] private float hostileEventChance = 0.15f;
 
     [Header("數據關聯")]
-    [Tooltip("將你創建的 ScoutingLootTable 拖到這裡")]
-    [SerializeField] private LootTable discoveryLootTable;
+    public List<ScoutAreaData> availableScoutAreas;
+    [Tooltip("将列表中的一个区域作为默认侦察区域")]
+    [SerializeField] private ScoutAreaData defaultScoutArea;
+    private LootTable currentLootTable;
+
     [Tooltip("寄生蠅卡牌的數據")]
     [SerializeField] private CardsBasicData parasitoidFlyCard;
     [Tooltip("污染卡牌的數據")]
     [SerializeField] private CardsBasicData contaminationCard;
     [Tooltip("偵察蟻卡牌的數據，用於識別")]
-    [SerializeField] private CardsBasicData scoutAntCardData; // <--- scoutAntData 在這裡被定義
+    [SerializeField] private CardsBasicData scoutAntCardData;
     [Tooltip("花園卡牌的數據，用於污染事件")]
     [SerializeField] private CardsBasicData gardenCardData;
 
-    [Tooltip("偵察蟻卡牌的數據，用於識別")]
-    [SerializeField] private CardsBasicData scoutAntData;
-
     [Header("位置設置")]
-    [Tooltip("發現的卡牌生成位置的參考點")]
     [SerializeField] private Transform spawnPoint;
 
     private List<Card> scoutsInZone = new List<Card>();
     private float currentScoutTimer = 0f;
-    // --- 變數定義區 結束 ---
 
+    private void Start()
+    {
+        // 设置默认掉落表
+        if (defaultScoutArea != null && defaultScoutArea.lootTable != null)
+        {
+            currentLootTable = defaultScoutArea.lootTable;
+        }
+        else if (availableScoutAreas.Count > 0)
+        {
+            currentLootTable = availableScoutAreas[0].lootTable;
+        }
+    }
+
+    // 公共方法，给UI按钮调用来切换掉落表
+    public void SetScoutingArea(LootTable selectedLootTable)
+    {
+        if (selectedLootTable != null)
+        {
+            currentLootTable = selectedLootTable;
+            Debug.Log($"侦察区域已切换为: {currentLootTable.name}");
+        }
+    }
+
+    // 侦察逻辑
     private void Update()
     {
         if (scoutsInZone.Count > 0)
@@ -56,20 +82,59 @@ public class ScoutingZone : MonoBehaviour
         }
     }
 
-    private void TriggerScoutEvent()
+    // --- 核心卡牌检测逻辑 (必须保留) ---
+    private void OnTriggerEnter2D(Collider2D other)
     {
-        Debug.Log($"偵察事件觸發！當前有 {scoutsInZone.Count} 隻偵察蟻。");
-
-        if (Random.value < hostileEventChance)
+        if (other.TryGetComponent<Card>(out Card card) && card.CardData == scoutAntCardData)
         {
-            TriggerHostileEvent();
-        }
-        else
-        {
-            TriggerDiscoveryEvent();
+            if (!scoutsInZone.Contains(card))
+            {
+                scoutsInZone.Add(card);
+                Debug.Log($"一隻偵察蟻 [{card.name}] 進入了區域。當前數量: {scoutsInZone.Count}");
+                if (scoutsInZone.Count == 1) ResetTimer();
+            }
         }
     }
 
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        if (other.TryGetComponent<Card>(out Card card) && card.CardData == scoutAntCardData)
+        {
+            if (scoutsInZone.Remove(card))
+            {
+                Debug.Log($"一隻偵察蟻 [{card.name}] 離開了區域。當前數量: {scoutsInZone.Count}");
+                if (scoutsInZone.Count == 0) currentScoutTimer = 0;
+            }
+        }
+    }
+
+    // --- 其他辅助函数 ---
+    private void ResetTimer()
+    {
+        float interval = baseScoutInterval - (scoutsInZone.Count * intervalReductionPerScout);
+        currentScoutTimer = Mathf.Max(interval, minScoutInterval);
+    }
+
+    private void TriggerScoutEvent()
+    {
+        if (currentLootTable == null) return;
+        Debug.Log($"偵察事件觸發！當前有 {scoutsInZone.Count} 隻偵察蟻。");
+
+        if (Random.value < hostileEventChance) TriggerHostileEvent();
+        else TriggerDiscoveryEvent();
+    }
+
+    private void TriggerDiscoveryEvent()
+    {
+        Debug.Log($"发现事件：在 [{currentLootTable.name}] 找到了新东西！");
+        CardsBasicData foundCardData = currentLootTable.GetRandomItem();
+        if (foundCardData != null)
+        {
+            CardSpawner.Instance.SpawnCard(foundCardData, spawnPoint.position + new Vector3(Random.Range(-0.5f, 0.5f), 0, 0));
+        }
+    }
+
+    // --- 完整的敌对事件和协程函数 ---
     private void TriggerHostileEvent()
     {
         if (Random.value < 0.5f)
@@ -100,47 +165,6 @@ public class ScoutingZone : MonoBehaviour
         if (cardToStack != null && destinationCard != null)
         {
             cardToStack.Stacker.ForceStackOn(destinationCard.Stacker);
-        }
-    }
-
-    private void TriggerDiscoveryEvent()
-    {
-        Debug.Log("發現事件：找到了新東西！");
-        CardsBasicData foundCardData = discoveryLootTable.GetRandomItem();
-        if (foundCardData != null)
-        {
-            CardSpawner.Instance.SpawnCard(foundCardData, spawnPoint.position + new Vector3(Random.Range(-0.5f, 0.5f), 0, 0));
-        }
-    }
-
-    private void ResetTimer()
-    {
-        float interval = baseScoutInterval - (scoutsInZone.Count * intervalReductionPerScout);
-        currentScoutTimer = Mathf.Max(interval, minScoutInterval);
-    }
-
-    private void OnTriggerEnter2D(Collider2D other)
-    {
-        if (other.TryGetComponent<Card>(out Card card) && card.CardData == scoutAntData) // <-- 現在這裡可以正確找到 scoutAntData
-        {
-            if (!scoutsInZone.Contains(card))
-            {
-                scoutsInZone.Add(card);
-                Debug.Log($"一隻偵察蟻 [{card.name}] 進入了區域。當前數量: {scoutsInZone.Count}");
-                if (scoutsInZone.Count == 1) ResetTimer();
-            }
-        }
-    }
-
-    private void OnTriggerExit2D(Collider2D other)
-    {
-        if (other.TryGetComponent<Card>(out Card card) && card.CardData == scoutAntData) // <-- 現在這裡可以正確找到 scoutAntData
-        {
-            if (scoutsInZone.Remove(card))
-            {
-                Debug.Log($"一隻偵察蟻 [{card.name}] 離開了區域。當前數量: {scoutsInZone.Count}");
-                if (scoutsInZone.Count == 0) currentScoutTimer = 0;
-            }
         }
     }
 }
