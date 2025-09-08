@@ -13,6 +13,9 @@ public class MainMenuManager : MonoBehaviour
     [Tooltip("包含主菜单按钮（继续、设置等）的页面")]
     public GameObject menuPage;
 
+    [Tooltip("需要隐藏的主背景图片")]
+    public GameObject mainBackground;
+
     [Tooltip("包含设置选项的页面")]
     public GameObject settingsPage;
 
@@ -87,6 +90,13 @@ public class MainMenuManager : MonoBehaviour
         {
             startPage.SetActive(false);
             menuPage.SetActive(true);
+
+        }
+
+        // --- 新增代码 #2: 在这里同时隐藏背景图片 ---
+        if (mainBackground != null)
+        {
+            mainBackground.SetActive(false);
         }
     }
 
