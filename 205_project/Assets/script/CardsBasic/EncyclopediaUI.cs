@@ -1,3 +1,4 @@
+// 放置于: EncyclopediaUI.cs (最终版，已集成打开/关闭按钮联动功能)
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -7,21 +8,28 @@ using System.Text;
 public class EncyclopediaUI : MonoBehaviour
 {
     [Header("UI引用")]
+    [Tooltip("百科的全屏UI面板，用于整体显示和隐藏")]
+    public GameObject encyclopediaPanel;
     public GameObject scienceSubCategoryContainer;
     public GameObject cardSubCategoryContainer;
     public TextMeshProUGUI detailTitleText;
     public TextMeshProUGUI detailContentText;
 
-    [Header("预制体引用")]
+    [Header("按钮引用")]
+    [Tooltip("主UI上用于打开百科面板的按钮")]
+    public Button openButton; // <-- 新增：对“打开”按钮的引用
+    [Tooltip("百科面板上用于关闭整个面板的按钮")]
+    public Button closeButton;
     public Button categoryButtonPrefab;
-
-    // --- 修改点 #1: 不再需要手动拖拽数据库 ---
-    // public CardsDataBase allCardsDatabase; // <-- 删除或注释掉这一行
 
     private Dictionary<string, string> scienceContent = new Dictionary<string, string>();
 
     void Start()
     {
+        // 初始化时，确保面板是隐藏的，而打开按钮是显示的
+        if (encyclopediaPanel != null) encyclopediaPanel.SetActive(false);
+        if (openButton != null) openButton.gameObject.SetActive(true);
+
         scienceSubCategoryContainer.SetActive(false);
         cardSubCategoryContainer.SetActive(false);
         detailTitleText.text = "Welcome to the Encyclopedia";
@@ -29,11 +37,52 @@ public class EncyclopediaUI : MonoBehaviour
 
         PopulateScienceData();
         CreateScienceUI();
-        // 不再在Start()中调用CreateCardEncyclopediaUI()，因为要确保CardsDataBase已经初始化
+
+        // 绑定按钮的点击事件
+        if (openButton != null)
+        {
+            openButton.onClick.AddListener(ShowEncyclopediaPanel);
+        }
+        if (closeButton != null)
+        {
+            closeButton.onClick.AddListener(HideEncyclopediaPanel);
+        }
     }
 
-    // ... (PopulateScienceData, CreateScienceUI, OnScienceEntryClicked 这几个方法保持不变) ...
-    #region 
+    /// <summary>
+    /// 显示百科全书UI面板，并隐藏打开按钮。
+    /// </summary>
+    public void ShowEncyclopediaPanel()
+    {
+        if (encyclopediaPanel != null)
+        {
+            encyclopediaPanel.SetActive(true);
+        }
+        // --- 核心修改点 #1: 隐藏打开按钮 ---
+        if (openButton != null)
+        {
+            openButton.gameObject.SetActive(false);
+        }
+    }
+
+    /// <summary>
+    /// 隐藏百科全书UI面板，并显示打开按钮。
+    /// </summary>
+    public void HideEncyclopediaPanel()
+    {
+        if (encyclopediaPanel != null)
+        {
+            encyclopediaPanel.SetActive(false);
+        }
+        // --- 核心修改点 #2: 显示打开按钮 ---
+        if (openButton != null)
+        {
+            openButton.gameObject.SetActive(true);
+        }
+    }
+
+    // ... (后续所有其他方法保持不变) ...
+    #region
     void PopulateScienceData()
     {
         scienceContent.Add("Characteristics",
@@ -71,7 +120,7 @@ public class EncyclopediaUI : MonoBehaviour
     #endregion
 
 
-    #region 
+    #region
     void CreateCardEncyclopediaUI()
     {
         foreach (Transform child in cardSubCategoryContainer.transform)
@@ -79,7 +128,6 @@ public class EncyclopediaUI : MonoBehaviour
             Destroy(child.gameObject);
         }
 
-        // --- 修改点 #2: 通过单例实例来获取所有卡牌 ---
         List<CardsBasicData> allCards = CardsDataBase.Instance.GetAllCards();
 
         if (allCards == null || allCards.Count == 0)
@@ -125,7 +173,7 @@ public class EncyclopediaUI : MonoBehaviour
 
         if (cardData is AntBasicData antData)
         {
-            sb.AppendLine($"<b>GrowthTime:</b> {antData.growthTime}"); // 注意：你的AntBasicData里有growthTime
+            sb.AppendLine($"<b>GrowthTime:</b> {antData.growthTime}");
             sb.AppendLine($"<b>Work Efficiency:</b> {antData.workEfficiency}");
         }
         else if (cardData is AntNestData antNestData)
@@ -145,24 +193,20 @@ public class EncyclopediaUI : MonoBehaviour
     }
     #endregion
 
-    #region 
+    #region
     public void ToggleSciencePanel()
     {
         scienceSubCategoryContainer.SetActive(!scienceSubCategoryContainer.activeSelf);
     }
 
-    // --- 修改点 #3: 改造ToggleCardPanel方法 ---
     public void ToggleCardPanel()
     {
-        // 切换显示状态
         bool isActive = !cardSubCategoryContainer.activeSelf;
         cardSubCategoryContainer.SetActive(isActive);
 
-        // 如果面板被打开，就刷新UI
         if (isActive)
         {
             Debug.Log("卡牌百科面板已打开，正在刷新列表...");
-            // 确保CardsDataBase单例已存在
             if (CardsDataBase.Instance != null)
             {
                 CreateCardEncyclopediaUI();
