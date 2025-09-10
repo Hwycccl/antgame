@@ -25,9 +25,20 @@ public class CardCombiner : MonoBehaviour
 
     public void CheckForCombination()
     {
+        // 这个检查确保了只有牌堆的根卡才能发起合成，这是正确的，应当保留
         if (card.Stacker.Parent != null) return;
-        if (combinationCoroutine != null) return;
 
+        // --- 核心修改点 开始 ---
+        // 检查当前是否已经有一个合成正在进行中
+        if (isCombining)
+        {
+            // 如果是，则取消当前的合成，为接下来的新检测做准备
+            CancelCombination();
+            Debug.Log("A new card was added to the stack. The current combination has been cancelled and will be re-evaluated.");
+        }
+        // --- 核心修改点 结束 ---
+
+        // 后续逻辑保持不变，它会用包含了新卡牌的完整牌堆去寻找配方
         List<Card> stackCards = card.Stacker.GetCardsInStack();
         List<CardsBasicData> inputData = stackCards.Select(c => c.CardData).ToList();
         CardsCombinationRule matchedRule = combinationDatabase.GetCombination(inputData);
