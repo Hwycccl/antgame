@@ -16,6 +16,12 @@ public class MainMenuManager : MonoBehaviour
     [Tooltip("需要隐藏的主背景图片")]
     public GameObject mainBackground;
 
+    [Tooltip("需要隐藏的主背景图片")]
+    public GameObject MenuObject1;
+
+    [Tooltip("需要隐藏的主背景图片")]
+    public GameObject MenuObject2;
+
     [Tooltip("包含设置选项的页面")]
     public GameObject settingsPage;
 
@@ -43,7 +49,8 @@ public class MainMenuManager : MonoBehaviour
         if (startPage != null) startPage.SetActive(true);
         if (menuPage != null) menuPage.SetActive(false);
         if (settingsPage != null) settingsPage.SetActive(false);
-
+        if (MenuObject1 != null) MenuObject1.SetActive(false);
+        if (MenuObject2 != null) MenuObject2.SetActive(false);
         // 检查继续按钮的可用性
         ContinueButtonCheck();
 
@@ -97,6 +104,8 @@ public class MainMenuManager : MonoBehaviour
         if (mainBackground != null)
         {
             mainBackground.SetActive(false);
+            MenuObject1.SetActive(true);
+            MenuObject2.SetActive(true); 
         }
     }
 
