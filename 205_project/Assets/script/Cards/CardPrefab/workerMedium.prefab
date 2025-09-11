@@ -18,7 +18,7 @@ GameObject:
   - component: {fileID: 4663922099977494633}
   - component: {fileID: -3519757017168811555}
   m_Layer: 0
-  m_Name: WorkerMedium
+  m_Name: workerMedium
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -80,7 +80,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -2123418859
-  m_SortingLayer: 2
+  m_SortingLayer: 4
   m_SortingOrder: 0
   m_Sprite: {fileID: -6635974962120030162, guid: 37ba3e2414465b845977bf5100767905, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -106,6 +106,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dragSortingOrder: 1000
+  pointerDownSound: {fileID: 8300000, guid: d36b2e86e858ed443a3e3c73bbd514ef, type: 3}
 --- !u!50 &3131832540569633510
 Rigidbody2D:
   serializedVersion: 4
@@ -145,6 +146,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d308d36a4539a14195162dcb91183ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  stackAnimationDuration: 0.15
   yOffset: 0.5
   detectionRadius: 1.5
 --- !u!114 &8595483670545389670

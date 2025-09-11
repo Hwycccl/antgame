@@ -1,11 +1,12 @@
-// 放置於: CardDragger.cs (已修正错误)
+// 放置於: CardDragger.cs (已添加“按下时”的音效)
 using UnityEngine;
 using UnityEngine.EventSystems;
 using System.Linq;
 using System.Text;
 
-// 使用新的事件接口来统一处理所有输入
-public class CardDragger : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler
+// --- 新增代码 #1: 添加 IPointerDownHandler 接口 ---
+// 这个接口让脚本能够响应鼠标按下的事件
+public class CardDragger : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler, IPointerDownHandler
 {
     private Camera mainCamera;
     private Vector3 offset;
@@ -18,20 +19,50 @@ public class CardDragger : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     private int originalRootSortingOrder;
     [SerializeField] private int dragSortingOrder = 1000;
 
+    // --- 新增代码 #2: 添加音效相关的变量 ---
+    [Header("音效设置")]
+    [Tooltip("当鼠标在卡牌上按下时播放的音效")]
+    [SerializeField] private AudioClip pointerDownSound;
+
+    private AudioSource audioSource;
+    // --- 新增代码结束 ---
+
     void Awake()
     {
         card = GetComponent<Card>();
         mainCamera = Camera.main;
         stacker = GetComponent<CardStacker>();
+
+        // --- 新增代码 #3: 安全地初始化 AudioSource ---
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+        {
+            audioSource = gameObject.AddComponent<AudioSource>();
+        }
+        // --- 新增代码结束 ---
     }
 
-    // --- 新增功能：点击时显示描述 ---
+    // --- 新增代码 #4: 实现 OnPointerDown 方法 ---
+    /// <summary>
+    /// 当鼠标指针在卡牌上按下的瞬间被调用
+    /// </summary>
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        // 播放音效
+        if (pointerDownSound != null)
+        {
+            audioSource.PlayOneShot(pointerDownSound);
+        }
+    }
+    // --- 新增代码结束 ---
+
+    // --- 以下所有代码均保持原样，未作任何修改 ---
+
     public void OnPointerClick(PointerEventData eventData)
     {
         UpdateDescription();
     }
 
-    // --- 这里是原 OnMouseDown() 的逻辑 ---
     public void OnBeginDrag(PointerEventData eventData)
     {
         card.Stacker.OnBeginDrag();
@@ -49,11 +80,9 @@ public class CardDragger : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
             rootStackerOfDraggedStack.UpdateStackVisuals();
         }
 
-        // 开始拖动时，也更新一次描述
         UpdateDescription();
     }
 
-    // --- 这里是原 OnMouseDrag() 的逻辑 ---
     public void OnDrag(PointerEventData eventData)
     {
         if (rootStackerOfDraggedStack != null)
@@ -62,7 +91,6 @@ public class CardDragger : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         }
     }
 
-    // --- 这里是原 OnMouseUp() 的逻辑 ---
     public void OnEndDrag(PointerEventData eventData)
     {
         if (rootStackerOfDraggedStack != null)
@@ -78,7 +106,6 @@ public class CardDragger : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         card.Stacker.OnEndDrag();
         rootStackerOfDraggedStack = null;
 
-        // --- 新增功能：结束拖动时隐藏描述框 ---
         if (DescriptionManager.Instance != null)
         {
             DescriptionManager.Instance.HideDescription();
@@ -92,13 +119,11 @@ public class CardDragger : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         return mainCamera.ScreenToWorldPoint(mousePoint);
     }
 
-    // --- 新增功能：更新描述文本框 ---
     private void UpdateDescription()
     {
         if (DescriptionManager.Instance == null) return;
 
         CardStacker root = stacker.GetRoot();
-        // 判断条件改为检查牌堆中的卡牌总数
         if (root.GetCardsInStack().Count > 1)
         {
             CardCombiner combiner = root.GetComponent<CardCombiner>();
@@ -124,7 +149,6 @@ public class CardDragger : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         }
         else
         {
-            // 单张卡牌
             DescriptionManager.Instance.ShowDescription(card.CardData.cardType.ToString(), card.CardData.description);
         }
     }
