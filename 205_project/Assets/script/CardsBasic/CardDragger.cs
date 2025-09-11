@@ -108,7 +108,7 @@ public class CardDragger : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
 
         if (DescriptionManager.Instance != null)
         {
-            DescriptionManager.Instance.HideDescription();
+            //DescriptionManager.Instance.HideDescription();
         }
     }
 
