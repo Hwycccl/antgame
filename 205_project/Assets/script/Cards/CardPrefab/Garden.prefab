@@ -17,6 +17,7 @@ GameObject:
   - component: {fileID: 6222901649675589274}
   - component: {fileID: 4663922099977494633}
   - component: {fileID: 8743286061622175419}
+  - component: {fileID: 3277140551054203354}
   m_Layer: 0
   m_Name: Garden
   m_TagString: Untagged
@@ -259,3 +260,15 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 10.24, y: 15.36}
   m_EdgeRadius: 0
+--- !u!225 &3277140551054203354
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6240936587655790046}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
