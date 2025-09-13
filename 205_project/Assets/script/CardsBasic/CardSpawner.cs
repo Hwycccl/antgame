@@ -1,4 +1,4 @@
-// 放置於: CardSpawner.cs
+// 文件名: CardSpawner.cs (修改后)
 using UnityEngine;
 
 public class CardSpawner : MonoBehaviour
@@ -7,36 +7,23 @@ public class CardSpawner : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-        }
-        else
-        {
-            Instance = this;
-        }
+        // ... (单例模式代码不变) ...
+        if (Instance != null && Instance != this) Destroy(gameObject);
+        else Instance = this;
     }
 
-    /// <summary>
-    /// 根據卡牌數據在指定位置生成一張新卡牌
-    /// </summary>
-    /// <param name="cardData">要生成的卡牌 ScriptableObject</param>
-    /// <param name="position">生成位置</param>
-    /// <returns>返回生成卡牌的 Card 組件</returns>
+    // --- 核心修改 ---
     public Card SpawnCard(CardsBasicData cardData, Vector3 position)
     {
         if (cardData == null || cardData.cardPrefab == null)
         {
-            Debug.LogError($"無法生成卡牌：{cardData?.name} 的數據或預製件為空！");
+            Debug.LogError($"无法生成卡牌：{cardData?.name} 的数据或预制件为空！");
             return null;
         }
 
-        // 實例化預製件
-        GameObject cardObject = Instantiate(cardData.cardPrefab, position, Quaternion.identity);
-        cardObject.name = cardData.cardName; // 方便在場景中識別
+        // 从对象池获取卡牌，而不是Instantiate
+        Card cardController = CardPool.Instance.Get(cardData.cardPrefab, position, Quaternion.identity);
 
-        // 獲取 Card 組件並初始化
-        Card cardController = cardObject.GetComponent<Card>();
         if (cardController != null)
         {
             cardController.Initialize(cardData);
@@ -45,8 +32,8 @@ public class CardSpawner : MonoBehaviour
         }
         else
         {
-            Debug.LogError($"卡牌預製件 {cardData.cardPrefab.name} 上沒有掛載 Card 腳本！");
-            Destroy(cardObject);
+            // 理论上，如果对象池逻辑正确，这里不会执行
+            Debug.LogError($"卡牌预制件 {cardData.cardPrefab.name} 上没有挂载 Card 脚本！");
             return null;
         }
     }

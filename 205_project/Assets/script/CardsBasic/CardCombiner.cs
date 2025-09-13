@@ -132,13 +132,32 @@ public class CardCombiner : MonoBehaviour
             }
         }
 
-        foreach (var cardToDestroy in cardsToDestroy.Distinct().Reverse())
+        // --- 从这里开始是需要修改的部分 ---
+        // 遍历并“返还”卡牌，而不是销毁
+        foreach (var cardToReturn in cardsToDestroy.Distinct().Reverse())
         {
+<<<<<<< HEAD
             if (cardToDestroy != null)
             {
                 Destroy(cardToDestroy.gameObject);
+=======
+            if (cardToReturn != null)
+            {
+                // 获取这张即将被销毁卡牌的父卡牌的 Stacker
+                CardStacker parentStacker = cardToReturn.Stacker.Parent;
+
+                // 如果它有父卡牌，就让父卡牌来安全地移除它
+                if (parentStacker != null)
+                {
+                    parentStacker.SafelyRemoveChild(cardToReturn.Stacker);
+                }
+
+                CardPool.Instance.Return(cardToReturn); // 使用Return代替Destroy
+>>>>>>> 9be6e2bab343a4d3656e7e16eaadec7e7c709dbf
             }
         }
+        // --- 修改结束 ---
+
 
         // 重置所有状态
         combinationCoroutine = null;

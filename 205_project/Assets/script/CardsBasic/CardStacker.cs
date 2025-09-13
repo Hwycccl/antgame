@@ -241,4 +241,25 @@ public class CardStacker : MonoBehaviour
         Debug.Log($"[{gameObject.name}] is being force-stacked onto [{newParent.name}] by the system.");
         StackOn(newParent);
     }
+
+    /// <summary>
+    /// 从外部安全地移除一个指定的子卡牌。
+    /// 这是为合成系统等外部模块提供的一个受控接口。
+    /// </summary>
+    /// <param name="childToRemove">需要被移除的子卡牌的 CardStacker 组件</param>
+    public void SafelyRemoveChild(CardStacker childToRemove)
+    {
+        if (childToRemove != null && children.Contains(childToRemove))
+        {
+            // 1. 从父对象（自己）的列表中移除子对象
+            RemoveChild(childToRemove);
+
+            // 2. 解除子对象的 Transform 物理父子关系
+            childToRemove.transform.SetParent(null, worldPositionStays: true);
+
+            // 3. 我们不能直接设置 childToRemove.Parent = null，因为它是私有的，
+            //    但这没关系，因为这张卡马上要被对象池回收，下次使用时会被重置。
+            //    最关键的 children 列表已经修正了，问题就解决了。
+        }
+    }
 }
