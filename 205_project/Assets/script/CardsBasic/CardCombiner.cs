@@ -80,15 +80,13 @@ public class CardCombiner : MonoBehaviour
             currentProgressBar = progressBarInstance.GetComponent<CombinationProgressUI>();
         }
 
+        // 强制等待一帧，确保UI有时间初始化，避免“海森堡Bug”
+        yield return null;
+
         // 等待合成所需的时间
         if (rule.time > 0)
         {
             yield return new WaitForSeconds(rule.time);
-        }
-        else
-        {
-            // 如果时间为0，则至少等待一帧，以确保逻辑流程的稳定
-            yield return null;
         }
 
         // 合成完成，销毁进度条
@@ -132,32 +130,16 @@ public class CardCombiner : MonoBehaviour
             }
         }
 
-        // --- 从这里开始是需要修改的部分 ---
-        // 遍历并“返还”卡牌，而不是销毁
-        foreach (var cardToReturn in cardsToDestroy.Distinct().Reverse())
+        // --- 冲突已解决 ---
+        // 我们选择使用 Destroy 方法来确保代码的稳定性
+        foreach (var cardToDestroy in cardsToDestroy.Distinct().Reverse())
         {
-<<<<<<< HEAD
             if (cardToDestroy != null)
             {
                 Destroy(cardToDestroy.gameObject);
-=======
-            if (cardToReturn != null)
-            {
-                // 获取这张即将被销毁卡牌的父卡牌的 Stacker
-                CardStacker parentStacker = cardToReturn.Stacker.Parent;
-
-                // 如果它有父卡牌，就让父卡牌来安全地移除它
-                if (parentStacker != null)
-                {
-                    parentStacker.SafelyRemoveChild(cardToReturn.Stacker);
-                }
-
-                CardPool.Instance.Return(cardToReturn); // 使用Return代替Destroy
->>>>>>> 9be6e2bab343a4d3656e7e16eaadec7e7c709dbf
             }
         }
-        // --- 修改结束 ---
-
+        // --- 解决结束 ---
 
         // 重置所有状态
         combinationCoroutine = null;
