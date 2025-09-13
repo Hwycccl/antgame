@@ -93,14 +93,20 @@ public class CardCombiner : MonoBehaviour
             }
         }
 
-        foreach (var cardToDestroy in cardsToDestroy.Distinct().Reverse())
+        // 遍历并“返还”卡牌，而不是销毁
+        foreach (var cardToReturn in cardsToDestroy.Distinct().Reverse())
         {
-            if (cardToDestroy != null) Destroy(cardToDestroy.gameObject);
+            if (cardToReturn != null)
+            {
+                CardPool.Instance.Return(cardToReturn); // 使用Return代替Destroy
+            }
         }
+
 
         combinationCoroutine = null;
         isCombining = false;
         currentCombinationRule = null;
+        // 可选但推荐：在合成后，让根卡牌更新一下视觉，确保层级等正确
     }
 
     public float GetRemainingTime()
