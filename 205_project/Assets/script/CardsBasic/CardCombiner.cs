@@ -1,4 +1,4 @@
-// 放置於: CardCombiner.cs
+// 文件路径: Assets/script/CardsBasic/CardCombiner.cs
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,15 +9,15 @@ public class CardCombiner : MonoBehaviour
     [Header("組合數據庫")]
     [Tooltip("包含所有合成配方的 ScriptableObject")]
     [SerializeField] private CardsCombination combinationDatabase;
-    [SerializeField] private Vector3 spawnOffset = new Vector3(-2f, 0, 0); // 这个决定了卡牌最终弹出的位置
+    [SerializeField] private Vector3 spawnOffset = new Vector3(-2f, 0, 0);
 
-    // --- 新增变量 ---
-    [Header("弹出动画设置")]
-    [Tooltip("新卡牌弹出的动画时长")]
-    [SerializeField] private float spawnAnimationDuration = 0.3f;
-    // --- 新增结束 ---
+    [Header("UI设置")]
+    [Tooltip("将你的进度条UI预制体拖到这里")]
+    [SerializeField] private GameObject combinationProgressPrefab;
+    [Tooltip("进度条相对于卡牌根部的位置偏移")]
+    [SerializeField] private Vector3 progressBarOffset = new Vector3(0, 1.5f, 0);
 
-
+    private CombinationProgressUI currentProgressBar;
     private Card card;
     private Coroutine combinationCoroutine;
 
@@ -30,40 +30,72 @@ public class CardCombiner : MonoBehaviour
         card = GetComponent<Card>();
     }
 
+    private void Update()
+    {
+        // 如果正在合成，并且进度条、合成规则都存在，则更新进度条的显示
+        if (isCombining && currentProgressBar != null && currentCombinationRule != null && currentCombinationRule.time > 0)
+        {
+            float elapsedTime = Time.time - combinationStartTime;
+            float progress = elapsedTime / currentCombinationRule.time;
+            currentProgressBar.UpdateProgress(progress);
+        }
+    }
+
+    /// <summary>
+    /// 检查当前牌堆是否满足合成条件
+    /// </summary>
     public void CheckForCombination()
     {
+        // 只有牌堆的根卡才能发起检查
         if (card.Stacker.Parent != null) return;
-
-        if (isCombining)
-        {
-            CancelCombination();
-        }
+        // 如果正在合成中加入了新卡，则取消旧的合成，重新检查
+        if (isCombining) CancelCombination();
 
         List<Card> stackCards = card.Stacker.GetCardsInStack();
         List<CardsBasicData> inputData = stackCards.Select(c => c.CardData).ToList();
+
+        // 从数据库中查找匹配的合成规则
         CardsCombinationRule matchedRule = combinationDatabase.GetCombination(inputData);
 
+        // 如果找到了匹配的规则，则启动合成过程
         if (matchedRule != null)
         {
             combinationCoroutine = StartCoroutine(CombinationProcess(matchedRule, stackCards));
         }
     }
 
+    /// <summary>
+    /// 执行合成过程的协程
+    /// </summary>
     private IEnumerator CombinationProcess(CardsCombinationRule rule, List<Card> ingredientCards)
     {
         isCombining = true;
         combinationStartTime = Time.time;
         currentCombinationRule = rule;
 
-        yield return new WaitForSeconds(rule.time);
-
-        Debug.Log("合成完成！");
-
-        if (EffectManager.Instance != null)
+        // 只有当合成时间大于0且预制件已设置时，才创建并显示进度条
+        if (rule.time > 0 && combinationProgressPrefab != null)
         {
-            EffectManager.Instance.PlayCombinationEffect(transform.position);
+            GameObject progressBarInstance = Instantiate(combinationProgressPrefab, transform.position + progressBarOffset, Quaternion.identity, transform);
+            currentProgressBar = progressBarInstance.GetComponent<CombinationProgressUI>();
         }
 
+        // 强制等待一帧，确保UI有时间初始化，避免“海森堡Bug”
+        yield return null;
+
+        // 等待合成所需的时间
+        if (rule.time > 0)
+        {
+            yield return new WaitForSeconds(rule.time);
+        }
+
+        // 合成完成，销毁进度条
+        if (currentProgressBar != null)
+        {
+            Destroy(currentProgressBar.gameObject);
+        }
+
+        // 处理合成结果：生成新卡牌
         Vector3 rootPosition = transform.position;
         foreach (var result in rule.results)
         {
@@ -79,24 +111,13 @@ public class CardCombiner : MonoBehaviour
                             continue;
                         }
                     }
-
-                    // --- 修改点 1: 在中心生成卡牌，并获取它的引用 ---
-                    // 注意，我们现在在 rootPosition 生成它，而不是 rootPosition + spawnOffset
-                    Card newCard = CardSpawner.Instance.SpawnCard(result.resultCard, rootPosition);
-
-                    // --- 修改点 2: 如果成功生成了卡牌，就为它启动弹出动画 ---
-                    if (newCard != null)
-                    {
-                        Vector3 targetPosition = rootPosition + spawnOffset;
-                        StartCoroutine(AnimateCardSpawn(newCard, targetPosition));
-                    }
-
+                    CardSpawner.Instance.SpawnCard(result.resultCard, rootPosition + spawnOffset);
                     UnlockedCardsManager.UnlockCard(result.resultCard.cardName);
                 }
             }
         }
 
-        // (销毁卡牌的逻辑保持不变)
+        // 处理合成消耗：销毁原料卡牌
         List<Card> cardsToDestroy = new List<Card>();
         foreach (var requiredGroup in rule.requiredCards)
         {
@@ -109,99 +130,54 @@ public class CardCombiner : MonoBehaviour
             }
         }
 
-        foreach (var cardToReturn in cardsToDestroy.Distinct().Reverse())
+        // --- 冲突已解决 ---
+        // 我们选择使用 Destroy 方法来确保代码的稳定性
+        foreach (var cardToDestroy in cardsToDestroy.Distinct().Reverse())
         {
-            if (cardToReturn != null)
+            if (cardToDestroy != null)
             {
-                CardStacker parentStacker = cardToReturn.Stacker.Parent;
-                if (parentStacker != null)
-                {
-                    parentStacker.SafelyRemoveChild(cardToReturn.Stacker);
-                }
-
-                if (EffectManager.Instance != null)
-                {
-                    EffectManager.Instance.PlayDissipateEffect(cardToReturn.transform.position);
-                }
-
-                cardToReturn.gameObject.SetActive(false);
-                StartCoroutine(ReturnCardToPoolAfterDelay(cardToReturn, 1.0f));
+                Destroy(cardToDestroy.gameObject);
             }
         }
+        // --- 解决结束 ---
 
+        // 重置所有状态
         combinationCoroutine = null;
         isCombining = false;
         currentCombinationRule = null;
     }
 
-    // --- 新增方法: 卡牌弹出动画协程 ---
-    // --- 修改后的方法: 卡牌弹出动画协程 (带有缓出效果) ---
-    private IEnumerator AnimateCardSpawn(Card cardToAnimate, Vector3 targetPosition)
+    /// <summary>
+    /// 从外部取消当前的合成过程
+    /// </summary>
+    public void CancelCombination()
     {
-        float elapsedTime = 0f;
-        Vector3 startingPosition = cardToAnimate.transform.position;
-
-        if (cardToAnimate.Dragger != null)
+        if (combinationCoroutine != null)
         {
-            cardToAnimate.Dragger.enabled = false;
-        }
+            StopCoroutine(combinationCoroutine);
 
-        while (elapsedTime < spawnAnimationDuration)
-        {
-            // --- 核心修改点 ---
-            // 1. 计算原始的线性进度 (0 到 1)
-            float t = elapsedTime / spawnAnimationDuration;
+            if (currentProgressBar != null)
+            {
+                Destroy(currentProgressBar.gameObject);
+            }
 
-            // 2. 将线性进度通过缓动函数转换为曲线进度
-            //    这个公式 (1 - (1 - t) * (1 - t)) 就是一个简单的 "Ease-Out Quad" 效果
-            float easedT = 1 - (1 - t) * (1 - t);
-
-            // 3. 使用新的曲线进度进行插值
-            cardToAnimate.transform.position = Vector3.Lerp(startingPosition, targetPosition, easedT);
-
-            elapsedTime += Time.deltaTime;
-            yield return null;
-        }
-        // --- 修改结束 ---
-
-        cardToAnimate.transform.position = targetPosition;
-
-        if (cardToAnimate.Dragger != null)
-        {
-            cardToAnimate.Dragger.enabled = true;
+            combinationCoroutine = null;
+            isCombining = false;
+            currentCombinationRule = null;
         }
     }
 
-    private IEnumerator ReturnCardToPoolAfterDelay(Card cardToReturn, float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        if (cardToReturn != null)
-        {
-            cardToReturn.gameObject.SetActive(true);
-            CardPool.Instance.Return(cardToReturn);
-        }
-    }
-
+    /// <summary>
+    /// 获取当前合成的剩余时间（给CardDragger脚本调用）
+    /// </summary>
+    /// <returns>剩余的秒数</returns>
     public float GetRemainingTime()
     {
-        // ... (此方法无变化) ...
         if (isCombining && currentCombinationRule != null)
         {
             float elapsedTime = Time.time - combinationStartTime;
             return Mathf.Max(0, currentCombinationRule.time - elapsedTime);
         }
         return 0;
-    }
-
-    public void CancelCombination()
-    {
-        // ... (此方法无变化) ...
-        if (combinationCoroutine != null)
-        {
-            StopCoroutine(combinationCoroutine);
-            combinationCoroutine = null;
-            isCombining = false;
-            currentCombinationRule = null;
-        }
     }
 }
