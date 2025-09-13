@@ -93,20 +93,30 @@ public class CardCombiner : MonoBehaviour
             }
         }
 
+        // --- 从这里开始是需要修改的部分 ---
         // 遍历并“返还”卡牌，而不是销毁
         foreach (var cardToReturn in cardsToDestroy.Distinct().Reverse())
         {
             if (cardToReturn != null)
             {
+                // 获取这张即将被销毁卡牌的父卡牌的 Stacker
+                CardStacker parentStacker = cardToReturn.Stacker.Parent;
+
+                // 如果它有父卡牌，就让父卡牌来安全地移除它
+                if (parentStacker != null)
+                {
+                    parentStacker.SafelyRemoveChild(cardToReturn.Stacker);
+                }
+
                 CardPool.Instance.Return(cardToReturn); // 使用Return代替Destroy
             }
         }
+        // --- 修改结束 ---
 
 
         combinationCoroutine = null;
         isCombining = false;
         currentCombinationRule = null;
-        // 可选但推荐：在合成后，让根卡牌更新一下视觉，确保层级等正确
     }
 
     public float GetRemainingTime()
