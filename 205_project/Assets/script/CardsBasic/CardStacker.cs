@@ -262,4 +262,12 @@ public class CardStacker : MonoBehaviour
             //    最关键的 children 列表已经修正了，问题就解决了。
         }
     }
+    /// <summary>
+    /// 返回当前卡牌所有子级的列表副本
+    /// </summary>
+    public List<CardStacker> GetChildren()
+    {
+        // 返回一个新的列表副本，而不是直接引用私有列表，这样更安全
+        return new List<CardStacker>(children);
+    }
 }
