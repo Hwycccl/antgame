@@ -27,6 +27,13 @@ public class CardSpawner : MonoBehaviour
         if (cardController != null)
         {
             cardController.Initialize(cardData);
+            // --- 【在这里添加修复代码】 ---
+            // 确保无论何时生成卡牌，其拖拽功能都是开启的
+            if (cardController.Dragger != null)
+            {
+                cardController.Dragger.enabled = true;
+            }
+            // --- 【修复代码结束】 ---
             UnlockedCardsManager.UnlockCard(cardData.cardName);
             return cardController;
         }
