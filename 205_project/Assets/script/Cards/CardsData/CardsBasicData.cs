@@ -17,7 +17,7 @@ public class CardsBasicData : ScriptableObject
 
     [Header("¿¨ÅÆîĞÍ")]
     public CardType cardType;
-    public enum CardType { Ant, Resource, Building, Effect, Enemy }
+    public enum CardType { Ant, Resource, Building, Effect ,Enemy}
 
     [Header("¶Ñ¯B/ÏûºÄ")]
     public bool isConsumable = false;

@@ -801,7 +801,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 843176955}
   m_HandleRect: {fileID: 843176954}
   m_Direction: 2
-  m_Value: 0.9999995
+  m_Value: 1.0000005
   m_Size: 0.8141845
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -1466,7 +1466,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 73008c11a6806a243ae0751b26810cc7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseScoutInterval: 10
+  baseScoutInterval: 20
   intervalReductionPerScout: 1.5
   minScoutInterval: 3
   hostileEventChance: 0.15
@@ -3109,7 +3109,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &605036447
 RectTransform:
   m_ObjectHideFlags: 0
@@ -5268,7 +5268,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: -0.000019073486, y: 0.000030517578}
+  m_AnchoredPosition: {x: -0.000019073486, y: -0.000030517578}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &945962736
@@ -5424,8 +5424,8 @@ MonoBehaviour:
   soldiersRequiredIncrease: 2
   soldierAntCardData: {fileID: 11400000, guid: 2ce5aa9fe54f24b47b56fb2be243a9bc, type: 2}
   enemyCardData:
-  - {fileID: 11400000, guid: 0c8db7cc11c1bc24a8c85249a89cd5a5, type: 2}
   - {fileID: 11400000, guid: 5062cdf0ac4bc3b4a817e91a1c3e8e77, type: 2}
+  - {fileID: 11400000, guid: 0c8db7cc11c1bc24a8c85249a89cd5a5, type: 2}
 --- !u!4 &1005195974
 Transform:
   m_ObjectHideFlags: 0
@@ -5474,9 +5474,13 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 58158bc3dfe812a49babdd1eb0cf73b7, type: 2}
   - {fileID: 11400000, guid: 27ef46c1f3a11dd4996960f13b49f9c6, type: 2}
   - {fileID: 11400000, guid: ad3e2a1f22286144d8b01e9a1e297587, type: 2}
-  - {fileID: 11400000, guid: ad3e2a1f22286144d8b01e9a1e297587, type: 2}
+  - {fileID: 11400000, guid: 4857d19b103223a4a88b0728743299f1, type: 2}
   - {fileID: 11400000, guid: 348373b9b117b324ba64f94540c4d3b7, type: 2}
   - {fileID: 11400000, guid: c5507260dcf0a454dbfc4bd922894af2, type: 2}
+  - {fileID: 11400000, guid: 348373b9b117b324ba64f94540c4d3b7, type: 2}
+  - {fileID: 11400000, guid: 348373b9b117b324ba64f94540c4d3b7, type: 2}
+  - {fileID: 11400000, guid: 348373b9b117b324ba64f94540c4d3b7, type: 2}
+  - {fileID: 11400000, guid: 5062cdf0ac4bc3b4a817e91a1c3e8e77, type: 2}
   spawnPosition: {x: -2, y: 7.7, z: 20}
   spawnSpacing: 3
 --- !u!4 &1015128036
@@ -7617,7 +7621,7 @@ Transform:
   m_GameObject: {fileID: 1737214911}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.03, y: -8, z: 0}
+  m_LocalPosition: {x: 0.03, y: -1.5, z: 0}
   m_LocalScale: {x: 5, y: 5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -7778,7 +7782,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.4, y: 0.16}
   m_AnchorMax: {x: 0.6, y: 0.2}
-  m_AnchoredPosition: {x: 0.000030517578, y: 0.000061035156}
+  m_AnchoredPosition: {x: 0.000030517578, y: 0}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1850187521
@@ -7892,7 +7896,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f61b5e3b1ea8cc844b5fbf55098f9252, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  backgroundMusic: {fileID: 8300000, guid: e4fafb4ccdf2d2040a609bc37a5a7b05, type: 3}
+  backgroundMusic: {fileID: 8300000, guid: 0429e7d462e7cd7499bb4d5f7ee5433e, type: 3}
 --- !u!4 &1866260609
 Transform:
   m_ObjectHideFlags: 0
