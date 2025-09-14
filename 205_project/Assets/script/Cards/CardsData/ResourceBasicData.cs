@@ -6,7 +6,7 @@ public class ResourceBasicData : CardsBasicData
 {
     [Header("资源属性")]
     public ResourceType resourceType;
-    public enum ResourceType { Leaf, LeafFragment, Feces, Fungus, Contamination ,soil}
+    public enum ResourceType { Leaf, LeafFragment, Feces, Fungus, Contamination ,soil,flower}
 
     public int resourceValue = 1;
     public float decayRate = 0f;   // 腐败速率 (0 = 不腐败)
