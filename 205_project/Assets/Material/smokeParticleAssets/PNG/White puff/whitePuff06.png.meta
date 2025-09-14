@@ -130,7 +130,8 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      whitePuff06_0: -970168607563056945
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
