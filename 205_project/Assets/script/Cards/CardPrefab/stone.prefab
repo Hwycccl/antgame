@@ -16,10 +16,10 @@ GameObject:
   - component: {fileID: 8595483670545389670}
   - component: {fileID: 6222901649675589274}
   - component: {fileID: 4663922099977494633}
-  - component: {fileID: -261358570524473519}
-  - component: {fileID: -1214572070329637492}
+  - component: {fileID: -1783216214421135430}
+  - component: {fileID: -8854822302889573007}
   m_Layer: 0
-  m_Name: Soldier
+  m_Name: stone
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -34,8 +34,8 @@ Transform:
   m_GameObject: {fileID: 6240936587655790046}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.51, y: 0.1, z: 20}
-  m_LocalScale: {x: 0.23, y: 0.23, z: 1}
+  m_LocalPosition: {x: 0.22853306, y: 0.15164566, z: 20}
+  m_LocalScale: {x: 0.15, y: 0.15, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -83,7 +83,7 @@ SpriteRenderer:
   m_SortingLayerID: -2123418859
   m_SortingLayer: 4
   m_SortingOrder: 0
-  m_Sprite: {fileID: 3613008408258798017, guid: a4a7318abba4b744b8b2d8a64cd2a4e0, type: 3}
+  m_Sprite: {fileID: 8872613540257890999, guid: 191d444edcb450f41b18d66f70cec7dc, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -179,7 +179,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 07bddb46ea19acf419ae512b3afe6c48, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _cardData: {fileID: 11400000, guid: 2ce5aa9fe54f24b47b56fb2be243a9bc, type: 2}
+  _cardData: {fileID: 11400000, guid: 0c8db7cc11c1bc24a8c85249a89cd5a5, type: 2}
   artworkRenderer: {fileID: 7179836954307870412}
 --- !u!58 &4663922099977494633
 CircleCollider2D:
@@ -216,8 +216,8 @@ CircleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Radius: 1.5
---- !u!61 &-261358570524473519
+  m_Radius: 2
+--- !u!61 &-1783216214421135430
 BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -251,19 +251,19 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: -0.0016012192, y: 0.08034229}
+  m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 12.8, y: 19.2}
+    oldSize: {x: 20, y: 30.007326}
     newSize: {x: 10.24, y: 15.36}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 12.848528, y: 19.336607}
+  m_Size: {x: 10.24, y: 15.36}
   m_EdgeRadius: 0
---- !u!225 &-1214572070329637492
+--- !u!225 &-8854822302889573007
 CanvasGroup:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

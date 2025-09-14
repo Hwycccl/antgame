@@ -14,16 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   items:
   - card: {fileID: 11400000, guid: 348373b9b117b324ba64f94540c4d3b7, type: 2}
-    weight: 3
+    weight: 10
   - card: {fileID: 11400000, guid: 2e7c409ccf3a9494f88af2ba30a834c1, type: 2}
     weight: 3
   - card: {fileID: 11400000, guid: 04aafe8805468704b905ced3abeeaf2c, type: 2}
-    weight: 3
-  - card: {fileID: 11400000, guid: 0c8db7cc11c1bc24a8c85249a89cd5a5, type: 2}
-    weight: 3
-  - card: {fileID: 11400000, guid: 69cbc9885f0617345a22ba2c421e5611, type: 2}
-    weight: 3
-  - card: {fileID: 11400000, guid: d42277feb5a26a2479277f2e05bbfa20, type: 2}
-    weight: 3
-  - card: {fileID: 11400000, guid: 5062cdf0ac4bc3b4a817e91a1c3e8e77, type: 2}
     weight: 1
+  - card: {fileID: 11400000, guid: 0c8db7cc11c1bc24a8c85249a89cd5a5, type: 2}
+    weight: 2
+  - card: {fileID: 11400000, guid: 5aaf67f45649212419479dae66580293, type: 2}
+    weight: 5
+  - card: {fileID: 11400000, guid: 07b9197cfabf5c547a4a32d5ac361e2b, type: 2}
+    weight: 3
+  - card: {fileID: 11400000, guid: e4129cd699e6a154396481ca1d491d40, type: 2}
+    weight: 5

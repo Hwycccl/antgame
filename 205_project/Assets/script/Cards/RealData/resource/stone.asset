@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b2c0ecc33ac88594cb7a129c9b1c415a, type: 3}
-  m_Name: Flower
+  m_Name: stone
   m_EditorClassIdentifier: 
-  cardName: flower
+  cardName: stone
   cardImage: {fileID: 0}
-  description: flower
-  cardPrefab: {fileID: 6240936587655790046, guid: 3f0822b5c0b4bfe4a8e92b97ce98e5a5, type: 3}
+  description: stone
+  cardPrefab: {fileID: 6240936587655790046, guid: 1f3e3622b27861f43bf17b54ba26060e, type: 3}
   cardType: 1
   isConsumable: 0
   isStackable: 1
@@ -25,6 +25,6 @@ MonoBehaviour:
   fertilizer: 0
   health: 0
   attack: 0
-  resourceType: 6
+  resourceType: 0
   resourceValue: 1
   decayRate: 0

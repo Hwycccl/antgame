@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: CardsCombination
   m_EditorClassIdentifier: 
   combinations:
-  - combinationName: "\u5DE5\u8681 + \u83CC\u56ED\uFF1A2\u771F\u83CC"
+  - combinationName: "\u5DE5\u8681 + \u83CC\u56ED\uFF1A\u771F\u83CC"
     requiredCards:
     - specificCard: {fileID: 11400000, guid: ad3e2a1f22286144d8b01e9a1e297587, type: 2}
       cardType: 0
@@ -25,9 +25,9 @@ MonoBehaviour:
       destroyOnCombine: 0
     results:
     - resultCard: {fileID: 11400000, guid: 04aafe8805468704b905ced3abeeaf2c, type: 2}
-      quantity: 2
+      quantity: 1
       probability: 1
-    time: 12
+    time: 20
   - combinationName: "\u5B75\u5316\u6240+\u5E7C\u866B+3\u771F\u83CC\uFF1A\u5175\u8681"
     requiredCards:
     - specificCard: {fileID: 11400000, guid: 786d43ec2c8b72547bba0eadad991f4e, type: 2}
@@ -46,7 +46,7 @@ MonoBehaviour:
     - resultCard: {fileID: 11400000, guid: 2ce5aa9fe54f24b47b56fb2be243a9bc, type: 2}
       quantity: 1
       probability: 1
-    time: 5
+    time: 20
   - combinationName: "\u5B75\u5316\u6240+\u5E7C\u866B+2\u771F\u83CC\uFF1A\u4FA6\u67E5\u8681"
     requiredCards:
     - specificCard: {fileID: 11400000, guid: 786d43ec2c8b72547bba0eadad991f4e, type: 2}
@@ -65,7 +65,7 @@ MonoBehaviour:
     - resultCard: {fileID: 11400000, guid: 27ef46c1f3a11dd4996960f13b49f9c6, type: 2}
       quantity: 1
       probability: 1
-    time: 5
+    time: 20
   - combinationName: "\u5DE5\u8681+2\u571F\u58E4+\u80A5\u6599+\u788E\u53F6+\u771F\u83CC\uFF1A\u82D7\u5703"
     requiredCards:
     - specificCard: {fileID: 11400000, guid: ad3e2a1f22286144d8b01e9a1e297587, type: 2}
@@ -92,7 +92,7 @@ MonoBehaviour:
     - resultCard: {fileID: 11400000, guid: c789351e454f834468c14a93bd37e6c7, type: 2}
       quantity: 2
       probability: 1
-    time: 5
+    time: 30
   - combinationName: "\u5DE5\u8681+\u80A5\u6599+\u788E\u53F6\uFF1A2\u771F\u83CC+1\u6742\u83CC"
     requiredCards:
     - specificCard: {fileID: 11400000, guid: ad3e2a1f22286144d8b01e9a1e297587, type: 2}
@@ -114,7 +114,7 @@ MonoBehaviour:
     - resultCard: {fileID: 11400000, guid: 0c8db7cc11c1bc24a8c85249a89cd5a5, type: 2}
       quantity: 1
       probability: 1
-    time: 10
+    time: 20
   - combinationName: "\u5B75\u5316\u6240+\u5E7C\u866B+\u771F\u83CC\uFF1A\u5DE5\u8681"
     requiredCards:
     - specificCard: {fileID: 11400000, guid: 786d43ec2c8b72547bba0eadad991f4e, type: 2}
@@ -133,7 +133,7 @@ MonoBehaviour:
     - resultCard: {fileID: 11400000, guid: ad3e2a1f22286144d8b01e9a1e297587, type: 2}
       quantity: 1
       probability: 1
-    time: 5
+    time: 20
   - combinationName: "\u5DE5\u8681+\u571F+\u77F3\u5934\uFF1A\u5DE2\u7A74"
     requiredCards:
     - specificCard: {fileID: 11400000, guid: ad3e2a1f22286144d8b01e9a1e297587, type: 2}
@@ -152,7 +152,7 @@ MonoBehaviour:
     - resultCard: {fileID: 11400000, guid: c5507260dcf0a454dbfc4bd922894af2, type: 2}
       quantity: 1
       probability: 1
-    time: 5
+    time: 20
   - combinationName: "\u5DE5\u8681+ \u6742\u83CC\uFF1A\u6E05\u9664+1\u771F\u83CC"
     requiredCards:
     - specificCard: {fileID: 11400000, guid: ad3e2a1f22286144d8b01e9a1e297587, type: 2}
@@ -167,7 +167,7 @@ MonoBehaviour:
     - resultCard: {fileID: 11400000, guid: 04aafe8805468704b905ced3abeeaf2c, type: 2}
       quantity: 1
       probability: 1
-    time: 5
+    time: 10
   - combinationName: "\u8681\u540E + 2\u771F\u83CC\uFF1A\u5E7C\u866B"
     requiredCards:
     - specificCard: {fileID: 11400000, guid: 58158bc3dfe812a49babdd1eb0cf73b7, type: 2}
@@ -182,7 +182,7 @@ MonoBehaviour:
     - resultCard: {fileID: 11400000, guid: 69cbc9885f0617345a22ba2c421e5611, type: 2}
       quantity: 1
       probability: 1
-    time: 4
+    time: 20
   - combinationName: "\u58EB\u5175\u8681 + \u5BC4\u751F\u8747\uFF1A\u79FB\u9664\u5BC4\u751F\u8747"
     requiredCards:
     - specificCard: {fileID: 11400000, guid: 2ce5aa9fe54f24b47b56fb2be243a9bc, type: 2}
@@ -212,7 +212,7 @@ MonoBehaviour:
     - resultCard: {fileID: 11400000, guid: edfcd5a6102318e41b220d68cfcc2633, type: 2}
       quantity: 2
       probability: 1
-    time: 5
+    time: 15
   - combinationName: "\u5DE5\u8681+\u788E\u53F6\uFF1A\u80A5\u6599"
     requiredCards:
     - specificCard: {fileID: 11400000, guid: ad3e2a1f22286144d8b01e9a1e297587, type: 2}
@@ -227,14 +227,14 @@ MonoBehaviour:
     - resultCard: {fileID: 11400000, guid: 2e7c409ccf3a9494f88af2ba30a834c1, type: 2}
       quantity: 1
       probability: 1
-    time: 5
+    time: 15
   - combinationName: "\u5DE5\u8681+\u82B1\uFF1A3\u80A5\u6599"
     requiredCards:
     - specificCard: {fileID: 11400000, guid: ad3e2a1f22286144d8b01e9a1e297587, type: 2}
       cardType: 0
       requiredCount: 1
       destroyOnCombine: 0
-    - specificCard: {fileID: 11400000, guid: c789351e454f834468c14a93bd37e6c7, type: 2}
+    - specificCard: {fileID: 11400000, guid: 07b9197cfabf5c547a4a32d5ac361e2b, type: 2}
       cardType: 2
       requiredCount: 1
       destroyOnCombine: 1
@@ -242,4 +242,27 @@ MonoBehaviour:
     - resultCard: {fileID: 11400000, guid: 2e7c409ccf3a9494f88af2ba30a834c1, type: 2}
       quantity: 3
       probability: 1
-    time: 5
+    time: 15
+  - combinationName: "\u5DE5\u8681+\u571F+\u77F3\u5934+\u771F\u83CC=\u5B75\u5316\u6240"
+    requiredCards:
+    - specificCard: {fileID: 11400000, guid: ad3e2a1f22286144d8b01e9a1e297587, type: 2}
+      cardType: 0
+      requiredCount: 1
+      destroyOnCombine: 0
+    - specificCard: {fileID: 11400000, guid: e4129cd699e6a154396481ca1d491d40, type: 2}
+      cardType: 1
+      requiredCount: 1
+      destroyOnCombine: 1
+    - specificCard: {fileID: 11400000, guid: 5aaf67f45649212419479dae66580293, type: 2}
+      cardType: 1
+      requiredCount: 1
+      destroyOnCombine: 1
+    - specificCard: {fileID: 11400000, guid: 04aafe8805468704b905ced3abeeaf2c, type: 2}
+      cardType: 1
+      requiredCount: 1
+      destroyOnCombine: 1
+    results:
+    - resultCard: {fileID: 11400000, guid: 786d43ec2c8b72547bba0eadad991f4e, type: 2}
+      quantity: 3
+      probability: 1
+    time: 30
