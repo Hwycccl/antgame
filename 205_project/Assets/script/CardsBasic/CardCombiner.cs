@@ -85,6 +85,8 @@ public class CardCombiner : MonoBehaviour
         }
     }
 
+    // 文件路径: Assets/script/CardsBasic/CardCombiner.cs (已修复)
+
     private IEnumerator CombinationProcess(CardsCombinationRule rule, List<Card> ingredientCards)
     {
         isCombining = true;
@@ -97,21 +99,55 @@ public class CardCombiner : MonoBehaviour
             currentProgressBar = progressBarInstance.GetComponent<CombinationProgressUI>();
         }
 
+        // --- 阶段1: 可中断的计时阶段 ---
         if (rule.time > 0)
         {
-            yield return new WaitForSeconds(rule.time);
+            float timer = rule.time;
+            while (timer > 0)
+            {
+                // 每一帧都检查卡牌堆叠是否被玩家破坏
+                if (!IsStackIntact(ingredientCards))
+                {
+                    Debug.Log("合成过程被玩家拖动卡牌中断。");
+                    CancelCombination(); // 安全地取消合成
+                    yield break;         // 退出协程
+                }
+                timer -= Time.deltaTime;
+                yield return null; // 等待下一帧
+            }
         }
 
+        // 在执行前做最后一次检查，防止在最后一帧被拖走
+        if (!IsStackIntact(ingredientCards))
+        {
+            Debug.Log("合成在执行前一刻被中断。");
+            CancelCombination();
+            yield break;
+        }
+
+        // --- 阶段2: 不可中断的执行阶段 ---
+        // 锁定所有参与的卡牌，防止在生成和销毁动画期间出现BUG
+        foreach (var ingredient in ingredientCards)
+        {
+            if (ingredient != null && ingredient.Dragger != null)
+            {
+                ingredient.Dragger.enabled = false;
+            }
+        }
+
+        // 清理进度条
         if (currentProgressBar != null)
         {
             Destroy(currentProgressBar.gameObject);
         }
 
+        // 播放特效
         if (EffectManager.Instance != null)
         {
             EffectManager.Instance.PlayCombinationEffect(transform.position);
         }
 
+        // --- 开始生成新卡牌 ---
         Vector3 rootPosition = transform.position;
         foreach (var result in rule.results)
         {
@@ -138,8 +174,9 @@ public class CardCombiner : MonoBehaviour
 
         yield return new WaitForSeconds(spawnAnimationDuration + 0.1f);
 
+        // --- 开始销毁旧卡牌 ---
         List<Card> cardsToDestroy = new List<Card>();
-        List<Card> availableIngredients = new List<Card>(ingredientCards);
+        List<Card> availableIngredients = new List<Card>(ingredientCards); // 这将是那些不被销毁的卡牌
         foreach (var requiredGroup in rule.requiredCards)
         {
             if (requiredGroup.destroyOnCombine)
@@ -156,11 +193,12 @@ public class CardCombiner : MonoBehaviour
                 cardsToDestroy.AddRange(foundCards);
                 foreach (var card in foundCards)
                 {
-                    availableIngredients.Remove(card);
+                    availableIngredients.Remove(card); // 从剩余列表中移除
                 }
             }
         }
 
+        // ... (销毁逻辑和对象池回收，这部分保持不变) ...
         foreach (var cardToReturn in cardsToDestroy.Distinct())
         {
             if (cardToReturn != null)
@@ -189,6 +227,8 @@ public class CardCombiner : MonoBehaviour
             }
         }
 
+
+        // --- 重置状态并解锁剩余卡牌 ---
         combinationCoroutine = null;
         isCombining = false;
         currentCombinationRule = null;
@@ -197,11 +237,15 @@ public class CardCombiner : MonoBehaviour
         {
             if (remainingCard != null && remainingCard.gameObject.activeInHierarchy)
             {
+                // 重新启用未被销毁卡牌的拖动功能
+                if (remainingCard.Dragger != null)
+                {
+                    remainingCard.Dragger.enabled = true;
+                }
                 remainingCard.Stacker.UpdateStackVisuals();
             }
         }
     }
-
     private IEnumerator AnimateCardSpawn(Card cardToAnimate, Vector3 targetPosition)
     {
         float elapsedTime = 0f;
@@ -247,5 +291,17 @@ public class CardCombiner : MonoBehaviour
             return Mathf.Max(0, currentCombinationRule.time - elapsedTime);
         }
         return 0;
+    }
+    /// <summary>
+    /// 辅助方法：检查初始的合成原料是否都还在当前的堆叠中
+    /// </summary>
+    private bool IsStackIntact(List<Card> originalIngredients)
+    {
+        List<Card> currentStack = card.Stacker.GetCardsInStack();
+        // 检查数量是否一致，以及所有原始卡牌是否都还在
+        if (currentStack.Count != originalIngredients.Count) return false;
+
+        // Linq.All确保originalIngredients中的每一个元素都在currentStack中
+        return originalIngredients.All(c => currentStack.Contains(c));
     }
 }

@@ -19,7 +19,7 @@ GameObject:
   - component: {fileID: -1783216214421135430}
   - component: {fileID: -8854822302889573007}
   m_Layer: 0
-  m_Name: AntNet
+  m_Name: Stone
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -83,7 +83,7 @@ SpriteRenderer:
   m_SortingLayerID: -2123418859
   m_SortingLayer: 4
   m_SortingOrder: 0
-  m_Sprite: {fileID: 6801052703885129383, guid: 68a5c0bb431284d48a5d1e91464177ba, type: 3}
+  m_Sprite: {fileID: 8872613540257890999, guid: 191d444edcb450f41b18d66f70cec7dc, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
