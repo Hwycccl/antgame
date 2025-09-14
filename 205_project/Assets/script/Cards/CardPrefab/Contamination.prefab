@@ -83,7 +83,7 @@ SpriteRenderer:
   m_SortingLayerID: -2123418859
   m_SortingLayer: 4
   m_SortingOrder: 0
-  m_Sprite: {fileID: -6635974962120030162, guid: 37ba3e2414465b845977bf5100767905, type: 3}
+  m_Sprite: {fileID: 8469964491870136743, guid: d9b3091bd14013142ae2adba4b1f54c0, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -163,7 +163,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   combinationDatabase: {fileID: 11400000, guid: 9d6ae4176a38d24478a5c3ffb7111cfb, type: 2}
-  spawnOffset: {x: -8, y: 0, z: 0}
+  spawnOffset: {x: -5, y: 0, z: 0}
   combinationProgressPrefab: {fileID: 6873581319673353947, guid: 26ca85487a0b86c448bf2dc7a9c85972, type: 3}
   progressBarOffset: {x: -1, y: 3, z: 0}
   spawnAnimationDuration: 0.3
@@ -251,17 +251,17 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0.0000009536743, y: 0.10223007}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 10.24, y: 15.36}
+    oldSize: {x: 20, y: 30.007326}
     newSize: {x: 10.24, y: 15.36}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 10.24, y: 15.36}
+  m_Size: {x: 19.644915, y: 29.876282}
   m_EdgeRadius: 0
 --- !u!225 &-2619710645238742894
 CanvasGroup:

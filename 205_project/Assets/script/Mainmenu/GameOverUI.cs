@@ -63,7 +63,13 @@ public class GameOverUI : MonoBehaviour
             Debug.LogError("UI components for GameOverUI are not set in the Inspector!");
             return;
         }
-
+        // --- 核心修改点：在这里停止音乐 ---
+        // 在显示结束画面时，找到音乐管理器并调用停止方法
+        if (MusicManager.Instance != null)
+        {
+            MusicManager.Instance.StopMusic();
+        }
+        // --- 修改结束 ---
         // Format the text in English
         statsText.text = $"{reason}\n\n" +
                          $"You survived for: <color=yellow>{daysSurvived}</color> days\n" +
