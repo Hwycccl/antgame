@@ -5474,6 +5474,11 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 4857d19b103223a4a88b0728743299f1, type: 2}
   - {fileID: 11400000, guid: 348373b9b117b324ba64f94540c4d3b7, type: 2}
   - {fileID: 11400000, guid: c5507260dcf0a454dbfc4bd922894af2, type: 2}
+  - {fileID: 11400000, guid: 04aafe8805468704b905ced3abeeaf2c, type: 2}
+  - {fileID: 11400000, guid: 04aafe8805468704b905ced3abeeaf2c, type: 2}
+  - {fileID: 11400000, guid: 04aafe8805468704b905ced3abeeaf2c, type: 2}
+  - {fileID: 11400000, guid: 04aafe8805468704b905ced3abeeaf2c, type: 2}
+  - {fileID: 11400000, guid: 04aafe8805468704b905ced3abeeaf2c, type: 2}
   spawnPosition: {x: -2, y: 7.7, z: 20}
   spawnSpacing: 3
 --- !u!4 &1015128036

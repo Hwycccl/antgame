@@ -1,6 +1,7 @@
-// 放置于: SurvivalManager.cs (English Version)
+// 文件路径: Assets/script/SurvivalManager.cs (已按您的要求修改)
 using UnityEngine;
 using System.Linq;
+using System.Collections.Generic; // 引入此命名空间以使用 List<T>
 
 public class SurvivalManager : MonoBehaviour
 {
@@ -28,6 +29,7 @@ public class SurvivalManager : MonoBehaviour
     [Tooltip("Drag your 'Soldier Ant' card data here")]
     [SerializeField] private AntBasicData soldierAntCardData;
 
+    // --- 变量声明部分保持不变 ---
     private int currentDay = 1;
     private float dayTimer = 0f;
     private int nextInvasionDay;
@@ -82,11 +84,12 @@ public class SurvivalManager : MonoBehaviour
 
     private void CheckFoodSupply()
     {
+        // --- 这部分食物检查逻辑保持不变 ---
         var allCards = FindObjectsByType<Card>(FindObjectsSortMode.None);
-        int antPopulation = allCards.Count(c => c.CardData.cardType == CardsBasicData.CardType.Ant);
-        int totalFoodAvailable = allCards
-            .Where(c => c.CardData == foodCardData)
-            .Sum(c => (c.CardData as ResourceBasicData)?.resourceValue ?? 0);
+        int antPopulation = allCards.Count(c => c.gameObject.activeInHierarchy && c.CardData.cardType == CardsBasicData.CardType.Ant);
+
+        var availableFoodCards = allCards.Where(c => c.gameObject.activeInHierarchy && c.CardData == foodCardData).ToList();
+        int totalFoodAvailable = availableFoodCards.Sum(c => (c.CardData as ResourceBasicData)?.resourceValue ?? 0);
 
         int foodNeeded = antPopulation * foodConsumptionPerAnt;
 
@@ -94,44 +97,74 @@ public class SurvivalManager : MonoBehaviour
 
         if (totalFoodAvailable < foodNeeded)
         {
-            // 使用英文的游戏结束原因
             GameOver($"Your colony perished from starvation!\nIt needed {foodNeeded} food but only had {totalFoodAvailable}.");
         }
         else
         {
-            ConsumeFood(foodNeeded, allCards.Where(c => c.CardData == foodCardData).ToList());
+            ConsumeFood(foodNeeded, availableFoodCards);
         }
     }
 
-    private void ConsumeFood(int amountToConsume, System.Collections.Generic.List<Card> foodCards)
+    // ==================== 【核心修改区域】 ====================
+    /// <summary>
+    /// 消耗指定数量的食物。
+    /// 主要修改：将 Destroy() 替换为 CardPool.Instance.Return()，以实现对象池回收。
+    /// </summary>
+    private void ConsumeFood(int amountToConsume, List<Card> foodCards)
     {
+        // 1. 优先消耗价值较低的食物卡（此逻辑保持不变）
         foodCards = foodCards.OrderBy(c => (c.CardData as ResourceBasicData).resourceValue).ToList();
-        int consumedAmount = 0;
+
+        int consumedValue = 0;
+        List<Card> cardsToReturnToPool = new List<Card>();
+
+        // 2. 决定哪些卡牌需要被消耗
         foreach (var foodCard in foodCards)
         {
-            if (consumedAmount >= amountToConsume) break;
-            int cardValue = (foodCard.CardData as ResourceBasicData).resourceValue;
-            consumedAmount += cardValue;
-            Destroy(foodCard.gameObject);
+            if (consumedValue >= amountToConsume) break;
+
+            if (foodCard.CardData is ResourceBasicData resourceData)
+            {
+                consumedValue += resourceData.resourceValue;
+                cardsToReturnToPool.Add(foodCard);
+            }
         }
-        Debug.Log($"Consumed {consumedAmount} food.");
+
+        // 3. 【关键修改】统一将需要消耗的卡牌返回到对象池
+        foreach (var card in cardsToReturnToPool)
+        {
+            if (CardPool.Instance != null)
+            {
+                // 使用对象池回收卡牌，而不是销毁它
+                CardPool.Instance.Return(card);
+            }
+            else
+            {
+                // 如果找不到对象池，则执行原始的销毁操作作为后备方案
+                Destroy(card.gameObject);
+            }
+        }
+
+        Debug.Log($"Consumed {consumedValue} food value by returning {cardsToReturnToPool.Count} cards to the pool.");
     }
+    // ========================================================
+
 
     private void CheckInvasion()
     {
+        // --- 入侵检查逻辑保持不变 ---
         invasionCount++;
         int requiredSoldiers = baseSoldiersRequired + (invasionCount - 1) * soldiersRequiredIncrease;
 
         Debug.Log($"[Invasion Alert!] Wave {invasionCount} is attacking! {requiredSoldiers} soldiers are needed to defend.");
 
         int currentSoldiers = FindObjectsByType<Card>(FindObjectsSortMode.None)
-            .Count(c => c.CardData == soldierAntCardData);
+            .Count(c => c.gameObject.activeInHierarchy && c.CardData == soldierAntCardData);
 
         Debug.Log($"Current soldier count: {currentSoldiers}");
 
         if (currentSoldiers < requiredSoldiers)
         {
-            // 使用英文的游戏结束原因
             GameOver($"Your colony was overrun by invaders!\nYou needed {requiredSoldiers} soldiers but only had {currentSoldiers}.");
         }
         else
@@ -142,6 +175,7 @@ public class SurvivalManager : MonoBehaviour
 
     private void GameOver(string reason)
     {
+        // --- 游戏结束逻辑保持不变 ---
         if (isGameOver) return;
         isGameOver = true;
 
@@ -157,7 +191,7 @@ public class SurvivalManager : MonoBehaviour
         if (GameOverUI.Instance != null)
         {
             int finalPopulation = FindObjectsByType<Card>(FindObjectsSortMode.None)
-                                    .Count(c => c.CardData.cardType == CardsBasicData.CardType.Ant);
+                                      .Count(c => c.CardData.cardType == CardsBasicData.CardType.Ant);
 
             GameOverUI.Instance.ShowGameOverScreen(currentDay, finalPopulation, reason);
         }
