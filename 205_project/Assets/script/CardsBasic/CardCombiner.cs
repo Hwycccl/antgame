@@ -1,6 +1,8 @@
 // 文件路径: Assets/script/CardsBasic/CardCombiner.cs (最终合并版)
+
 using System.Collections;
 using System.Collections.Generic;
+
 using System.Linq;
 using UnityEngine;
 
@@ -63,9 +65,6 @@ public class CardCombiner : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 执行合成过程的协程
-    /// </summary>
     private IEnumerator CombinationProcess(CardsCombinationRule rule, List<Card> ingredientCards)
     {
         isCombining = true;
@@ -98,8 +97,7 @@ public class CardCombiner : MonoBehaviour
             EffectManager.Instance.PlayCombinationEffect(transform.position);
         }
 
-
-        // (恢复) 处理合成结果：生成带动画的新卡牌
+        // --- 处理合成结果 (您修改后的版本，保持不变) ---
         Vector3 rootPosition = transform.position;
         foreach (var result in rule.results)
         {
@@ -116,7 +114,6 @@ public class CardCombiner : MonoBehaviour
                         }
                     }
 
-                    // 在中心生成卡牌，并为其启动弹出动画
                     Card newCard = CardSpawner.Instance.SpawnCard(result.resultCard, rootPosition);
                     if (newCard != null)
                     {
@@ -124,20 +121,44 @@ public class CardCombiner : MonoBehaviour
                         StartCoroutine(AnimateCardSpawn(newCard, targetPosition));
                     }
                     UnlockedCardsManager.UnlockCard(result.resultCard.cardName);
+
+                    yield return new WaitForSeconds(0.15f);
                 }
             }
         }
 
-        // 处理合成消耗：销毁原料卡牌
+        // --- 核心修复：在这里添加回缺失的卡牌销毁逻辑 ---
+
         List<Card> cardsToDestroy = new List<Card>();
+        List<Card> availableIngredients = new List<Card>(ingredientCards);
+
         foreach (var requiredGroup in rule.requiredCards)
         {
             if (requiredGroup.destroyOnCombine)
             {
-                var matchingCards = ingredientCards
-                    .Where(c => c.CardData == requiredGroup.specificCard || c.CardData.cardType == requiredGroup.cardType)
-                    .Take(requiredGroup.requiredCount);
-                cardsToDestroy.AddRange(matchingCards);
+                List<Card> foundCards = new List<Card>();
+
+                if (requiredGroup.specificCard != null)
+                {
+                    foundCards = availableIngredients
+                        .Where(c => c.CardData == requiredGroup.specificCard)
+                        .Take(requiredGroup.requiredCount)
+                        .ToList();
+                }
+                else
+                {
+                    foundCards = availableIngredients
+                        .Where(c => c.CardData.cardType == requiredGroup.cardType)
+                        .Take(requiredGroup.requiredCount)
+                        .ToList();
+                }
+
+                cardsToDestroy.AddRange(foundCards);
+
+                foreach (var card in foundCards)
+                {
+                    availableIngredients.Remove(card);
+                }
             }
         }
 
@@ -161,13 +182,13 @@ public class CardCombiner : MonoBehaviour
                 StartCoroutine(ReturnCardToPoolAfterDelay(cardToReturn, 1.0f));
             }
         }
+        // --- 修复结束 ---
 
         // 重置所有状态
         combinationCoroutine = null;
         isCombining = false;
         currentCombinationRule = null;
     }
-
     /// <summary>
     /// 从外部取消当前的合成过程
     /// </summary>
