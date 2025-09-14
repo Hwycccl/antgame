@@ -154,7 +154,9 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      fart01_0: 866047967946977069
+      fart01_1: 5776974274322422617
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

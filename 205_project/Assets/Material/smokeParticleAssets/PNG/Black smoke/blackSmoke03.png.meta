@@ -130,7 +130,8 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      blackSmoke03_0: -8111785572578667677
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
