@@ -130,7 +130,8 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      flash05_0: 4662947417862519801
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
