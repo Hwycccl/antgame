@@ -3109,7 +3109,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &605036447
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3127,7 +3127,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 580, y: 0}
-  m_SizeDelta: {x: 300, y: 500}
+  m_SizeDelta: {x: 450, y: 500}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &605036448
 MonoBehaviour:
@@ -3149,7 +3149,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -2388339357213442642, guid: 87aa65f2cac842d4ab3e10949334f829, type: 3}
+  m_Sprite: {fileID: -8846531404728662497, guid: a84db49ec3b69a8429045907ff5dfac3, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -5784,7 +5784,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: -580, y: 0}
-  m_SizeDelta: {x: 300, y: 500}
+  m_SizeDelta: {x: 450, y: 500}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1091987256
 MonoBehaviour:
@@ -5806,7 +5806,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -7324451319848196439, guid: 798c7e39cc0ea6945915fbc5c39bc280, type: 3}
+  m_Sprite: {fileID: -717310797048172285, guid: 1ce08c275c7ca7d458a0d2594e3d4857, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -7338,7 +7338,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 300, y: 500}
+  m_SizeDelta: {x: 450, y: 500}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1508647043
 MonoBehaviour:
@@ -7360,7 +7360,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 3045676440671291890, guid: 131dca662a2acb843ac6df694e33845d, type: 3}
+  m_Sprite: {fileID: 2278421369159626714, guid: 0d90da44812f1334d9742b4104691971, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
