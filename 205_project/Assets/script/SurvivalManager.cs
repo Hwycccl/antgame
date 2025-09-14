@@ -1,7 +1,7 @@
-// 文件路径: Assets/script/SurvivalManager.cs (已按您的要求修改)
+// 文件路径: Assets/script/SurvivalManager.cs (已添加每日敌人检查功能)
 using UnityEngine;
 using System.Linq;
-using System.Collections.Generic; // 引入此命名空间以使用 List<T>
+using System.Collections.Generic;
 
 public class SurvivalManager : MonoBehaviour
 {
@@ -29,7 +29,12 @@ public class SurvivalManager : MonoBehaviour
     [Tooltip("Drag your 'Soldier Ant' card data here")]
     [SerializeField] private AntBasicData soldierAntCardData;
 
-    // --- 变量声明部分保持不变 ---
+    // ==================== 【新增代码】 ====================
+    [Header("Daily Enemy Check")]
+    [Tooltip("将所有敌对生物的卡牌数据拖到这里 (例如 寄生蝇, 螳螂)")]
+    [SerializeField] private List<CardsBasicData> enemyCardData;
+    // ========================================================
+
     private int currentDay = 1;
     private float dayTimer = 0f;
     private int nextInvasionDay;
@@ -71,6 +76,12 @@ public class SurvivalManager : MonoBehaviour
             currentDay++;
             Debug.Log($"--- Day {currentDay} has begun ---");
 
+            // ==================== 【修改代码】 ====================
+            // 1. 在所有结算之前，首先检查场上是否有敌人存在
+            CheckForEnemies();
+            if (isGameOver) return; // 如果因为敌人存在导致游戏结束，则跳过后续结算
+            // ========================================================
+
             CheckFoodSupply();
             if (isGameOver) return;
 
@@ -82,9 +93,36 @@ public class SurvivalManager : MonoBehaviour
         }
     }
 
+    // ==================== 【新增代码】 ====================
+    /// <summary>
+    /// 检查场上是否存在任何已定义的敌对生物。
+    /// </summary>
+    private void CheckForEnemies()
+    {
+        // 如果没有定义任何敌人，则直接跳过检查
+        if (enemyCardData == null || enemyCardData.Count == 0) return;
+
+        // 查找场景中所有激活的卡牌
+        var allCards = FindObjectsByType<Card>(FindObjectsSortMode.None);
+
+        // 检查是否有任何一张卡牌的数据，存在于我们的敌人列表中
+        bool enemyFound = allCards.Any(c => c.gameObject.activeInHierarchy && enemyCardData.Contains(c.CardData));
+
+        // 【或者】如果你修改了CardsBasicData.cs，可以使用更清晰的类型检查：
+        // bool enemyFound = allCards.Any(c => c.gameObject.activeInHierarchy && c.CardData.cardType == CardsBasicData.CardType.Enemy);
+
+        if (enemyFound)
+        {
+            // 找到敌人，立即结束游戏
+            var foundEnemy = allCards.First(c => c.gameObject.activeInHierarchy && enemyCardData.Contains(c.CardData));
+            GameOver($"A predator has infiltrated your nest! The [{foundEnemy.CardData.cardName}] destroyed your colony.");
+        }
+    }
+    // ========================================================
+
+
     private void CheckFoodSupply()
     {
-        // --- 这部分食物检查逻辑保持不变 ---
         var allCards = FindObjectsByType<Card>(FindObjectsSortMode.None);
         int antPopulation = allCards.Count(c => c.gameObject.activeInHierarchy && c.CardData.cardType == CardsBasicData.CardType.Ant);
 
@@ -105,20 +143,13 @@ public class SurvivalManager : MonoBehaviour
         }
     }
 
-    // ==================== 【核心修改区域】 ====================
-    /// <summary>
-    /// 消耗指定数量的食物。
-    /// 主要修改：将 Destroy() 替换为 CardPool.Instance.Return()，以实现对象池回收。
-    /// </summary>
     private void ConsumeFood(int amountToConsume, List<Card> foodCards)
     {
-        // 1. 优先消耗价值较低的食物卡（此逻辑保持不变）
         foodCards = foodCards.OrderBy(c => (c.CardData as ResourceBasicData).resourceValue).ToList();
 
         int consumedValue = 0;
         List<Card> cardsToReturnToPool = new List<Card>();
 
-        // 2. 决定哪些卡牌需要被消耗
         foreach (var foodCard in foodCards)
         {
             if (consumedValue >= amountToConsume) break;
@@ -130,29 +161,23 @@ public class SurvivalManager : MonoBehaviour
             }
         }
 
-        // 3. 【关键修改】统一将需要消耗的卡牌返回到对象池
         foreach (var card in cardsToReturnToPool)
         {
             if (CardPool.Instance != null)
             {
-                // 使用对象池回收卡牌，而不是销毁它
                 CardPool.Instance.Return(card);
             }
             else
             {
-                // 如果找不到对象池，则执行原始的销毁操作作为后备方案
                 Destroy(card.gameObject);
             }
         }
 
         Debug.Log($"Consumed {consumedValue} food value by returning {cardsToReturnToPool.Count} cards to the pool.");
     }
-    // ========================================================
-
 
     private void CheckInvasion()
     {
-        // --- 入侵检查逻辑保持不变 ---
         invasionCount++;
         int requiredSoldiers = baseSoldiersRequired + (invasionCount - 1) * soldiersRequiredIncrease;
 
@@ -175,7 +200,6 @@ public class SurvivalManager : MonoBehaviour
 
     private void GameOver(string reason)
     {
-        // --- 游戏结束逻辑保持不变 ---
         if (isGameOver) return;
         isGameOver = true;
 

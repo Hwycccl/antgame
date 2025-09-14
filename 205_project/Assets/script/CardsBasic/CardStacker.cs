@@ -97,7 +97,7 @@ public class CardStacker : MonoBehaviour
         }
     }
 
-    private void DetachFromParent()
+    public void DetachFromParent()
     {
         if (Parent == null) return;
         Parent.RemoveChild(this);
@@ -105,7 +105,7 @@ public class CardStacker : MonoBehaviour
         transform.SetParent(null, worldPositionStays: true);
     }
 
-    private void StackOn(CardStacker newParent)
+    public void StackOn(CardStacker newParent)
     {
         if (newParent == this || IsDescendant(newParent))
         {
